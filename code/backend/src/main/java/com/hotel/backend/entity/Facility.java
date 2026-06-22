@@ -2,18 +2,15 @@ package com.hotel.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-
+import java.io.Serializable;
 @Entity
 @Table(name = "facilities")
 @Getter
 @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class Facility {
+public class Facility extends AbstractEntity<Long> implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,12 +28,4 @@ public class Facility {
 
     @ManyToMany(mappedBy = "facilities")
     private Set<RoomType> roomTypes = new HashSet<>();
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }

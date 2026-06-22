@@ -4,8 +4,9 @@ import com.hotel.backend.constant.PaymentMethod;
 import com.hotel.backend.constant.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+
+
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -13,13 +14,11 @@ import java.time.LocalDateTime;
 @Table(name = "payments")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class Payment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Payment extends AbstractEntity<Long> implements Serializable{
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id")
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reservation_id",unique = true, nullable = false)
     private Reservation reservation;
 
     @Column(precision = 12, scale = 2)
@@ -27,11 +26,11 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
-    private PaymentMethod paymentMethod;
+    private PaymentMethod paymentMethod = PaymentMethod.CASH;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
-    private PaymentStatus paymentStatus;
+    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     @Column(name = "transaction_code")
     private String transactionCode;
@@ -39,11 +38,5 @@ public class Payment {
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }

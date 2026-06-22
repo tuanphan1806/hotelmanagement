@@ -3,44 +3,46 @@ package com.hotel.backend.entity;
 import com.hotel.backend.constant.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+
+import java.util.Set;
+import java.util.HashSet;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reservations")
 @Getter @Setter
+@Builder
 @NoArgsConstructor @AllArgsConstructor
-public class Reservation {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Reservation extends AbstractEntity<Long> implements Serializable {
 
-    @Column(name = "reservation_code", unique = true, length = 50)
+    @Column(name = "reservation_code", unique = true, nullable = false, length = 50)
     private String reservationCode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "customer_id", nullable = false)
     private User customer;
 
-    @Column(name = "check_in")
+    @Column(name = "check_in", nullable = false)
     private LocalDate checkIn;
 
-    @Column(name = "check_out")
+    @Column(name = "check_out", nullable = false)
     private LocalDate checkOut;
 
-    @Column(name = "total_amount", precision = 12, scale = 2)
+    @Column(name = "total_amount", precision = 12, scale = 2, nullable = false)
     private BigDecimal totalAmount;
 
-    @Column(name = "discount_amount", precision = 12, scale = 2)
+    @Builder.Default
+    @Column(name = "discount_amount", precision = 12, scale = 2, nullable = false)
     private BigDecimal discountAmount = BigDecimal.ZERO;
 
-    @Column(name = "tax_amount", precision = 12, scale = 2)
+    @Builder.Default
+    @Column(name = "tax_amount", precision = 12, scale = 2, nullable = false)
     private BigDecimal taxAmount = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ReservationStatus status;
 
     @Column(name = "cancellation_reason", columnDefinition = "TEXT")
@@ -52,11 +54,10 @@ public class Reservation {
     @Column(name = "guest_count")
     private Integer guestCount;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Payment payment;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Builder.Default
+    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ReservationRoomType> roomTypes = new HashSet<>();
 }

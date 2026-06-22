@@ -2,42 +2,39 @@ package com.hotel.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.HashSet;
+
 
 @Entity
 @Table(name = "reservation_room_types")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class ReservationRoomType {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ReservationRoomType extends AbstractEntity<Long> implements Serializable{
+
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id")
+    @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_type_id")
+    @JoinColumn(name = "room_type_id",nullable = false)
     private RoomType roomType;
 
-    @Column(nullable = false)
-    private Integer quantity = 1;
+    
+
+
+    @Column(name = "quantity",nullable = false)
+    private Integer quantity;
 
     @Column(name = "room_price", precision = 12, scale = 2)
     private BigDecimal roomPrice;
 
-    @Column(precision = 12, scale = 2)
+    @Column(name = "total",precision = 12, scale = 2)
     private BigDecimal subtotal;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    // @OneToMany(mappedBy = "reservationRoomType", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private Set<ReservationRoom> rooms = new HashSet<>();
 }

@@ -3,20 +3,18 @@ package com.hotel.backend.entity;
 import com.hotel.backend.constant.IdCardType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+
+
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "guests")
 @Getter
 @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class Guest {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Guest extends AbstractEntity<Long> implements Serializable{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_room_id")
@@ -45,11 +43,4 @@ public class Guest {
     @Column(name = "is_primary")
     private Boolean isPrimary = false;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }

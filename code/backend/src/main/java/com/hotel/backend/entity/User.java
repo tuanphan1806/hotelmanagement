@@ -6,19 +6,17 @@ import com.hotel.backend.constant.Role;
 import com.hotel.backend.constant.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import java.time.LocalDateTime;
+
+import java.util.Set;
+import java.io.Serializable;
+
 
 @Entity
 @Table(name = "users")
 @Getter 
 @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class User extends AbstractEntity<Long> implements Serializable{
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -38,11 +36,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "customer")
+    private Set<Reservation> reservations;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }

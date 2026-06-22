@@ -2,10 +2,11 @@ package com.hotel.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+
+
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,10 +14,7 @@ import java.util.Set;
 @Table(name = "room_types")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class RoomType {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RoomType extends AbstractEntity<Long> implements Serializable{
 
     @Column(name = "type_name", length = 100)
     private String typeName;
@@ -27,14 +25,6 @@ public class RoomType {
     @Column(precision = 12, scale = 2)
     private BigDecimal price;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @ManyToMany
     @JoinTable(
         name = "room_type_facilities",
@@ -42,4 +32,10 @@ public class RoomType {
         inverseJoinColumns = @JoinColumn(name = "facility_id")
     )
     private Set<Facility> facilities = new HashSet<>();
+
+    @OneToMany(mappedBy = "roomType")
+    private Set<Room> rooms;
+
+    @OneToMany(mappedBy = "roomType")
+    private Set<ReservationRoomType> reservations;
 }

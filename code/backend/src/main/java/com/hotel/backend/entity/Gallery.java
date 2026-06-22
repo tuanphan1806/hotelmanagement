@@ -1,31 +1,19 @@
 package com.hotel.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import java.time.LocalDateTime;
+
+import java.io.Serializable;
 
 @Entity
 @Table(name = "galleries")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class Gallery {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Gallery extends AbstractEntity<Long> implements Serializable{
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id")
-    private Room room;
+    @Column(name = "type")
+    private String type;
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }
