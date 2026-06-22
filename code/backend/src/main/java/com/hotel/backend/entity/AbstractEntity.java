@@ -1,7 +1,7 @@
 package com.hotel.backend.entity;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -24,9 +24,9 @@ public abstract class AbstractEntity<T extends Serializable> implements Serializ
 
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 }

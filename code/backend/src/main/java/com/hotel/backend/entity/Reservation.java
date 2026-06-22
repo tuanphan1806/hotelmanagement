@@ -43,7 +43,7 @@ public class Reservation extends AbstractEntity<Long> implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ReservationStatus status;
+    private ReservationStatus status= ReservationStatus.DRAFT;
 
     @Column(name = "cancellation_reason", columnDefinition = "TEXT")
     private String cancellationReason;
