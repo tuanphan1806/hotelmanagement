@@ -14,6 +14,7 @@ import java.util.Set;
 @Table(name = "room_types")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class RoomType extends AbstractEntity<Long> implements Serializable{
 
     @Column(name = "type_name", length = 100)

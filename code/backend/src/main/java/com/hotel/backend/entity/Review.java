@@ -11,6 +11,7 @@ import java.io.Serializable;
 @Table(name = "reviews")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Review extends AbstractEntity<Long> implements Serializable{
 
 

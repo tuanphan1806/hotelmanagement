@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Table(name = "rooms")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Room extends AbstractEntity<Long> implements Serializable{
 
     @Column(name = "room_name", unique = true, length = 20)

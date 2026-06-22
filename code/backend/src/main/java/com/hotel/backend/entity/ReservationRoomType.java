@@ -12,6 +12,7 @@ import java.util.HashSet;
 @Table(name = "reservation_room_types")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class ReservationRoomType extends AbstractEntity<Long> implements Serializable{
 
 

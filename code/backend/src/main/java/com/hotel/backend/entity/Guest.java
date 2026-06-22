@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Guest extends AbstractEntity<Long> implements Serializable{
 
     @ManyToOne(fetch = FetchType.LAZY)

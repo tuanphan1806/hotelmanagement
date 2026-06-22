@@ -8,6 +8,7 @@ import java.io.Serializable;
 @Table(name = "galleries")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Gallery extends AbstractEntity<Long> implements Serializable{
 
     @Column(name = "type")

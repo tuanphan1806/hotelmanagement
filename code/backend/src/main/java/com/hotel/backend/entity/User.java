@@ -16,6 +16,7 @@ import java.io.Serializable;
 @Getter 
 @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class User extends AbstractEntity<Long> implements Serializable{
 
     @Column(name = "full_name", nullable = false)

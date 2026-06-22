@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Table(name = "payments")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Payment extends AbstractEntity<Long> implements Serializable{
 
 
