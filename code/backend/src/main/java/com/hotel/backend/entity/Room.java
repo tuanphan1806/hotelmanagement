@@ -31,5 +31,4 @@ public class Room extends AbstractEntity<Long> implements Serializable{
     @Column(columnDefinition = "TEXT")
     private String description;
 
-
 }

@@ -25,6 +25,8 @@ public class RoomType extends AbstractEntity<Long> implements Serializable{
 
     @Column(precision = 12, scale = 2)
     private BigDecimal price;
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
 
     @ManyToMany
     @JoinTable(

@@ -1,35 +1,49 @@
 package com.hotel.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
-
 
 import java.io.Serializable;
 
-
 @Entity
-@Table(name = "reviews")
+@Table(
+    name = "reviews",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_review_user_reservation",
+            columnNames = {"user_id", "reservation_id"}
+        )
+    },
+    indexes = {
+        @Index(name = "idx_review_room_type", columnList = "room_type_id"),
+        @Index(name = "idx_review_reservation", columnList = "reservation_id")
+    }
+)
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Review extends AbstractEntity<Long> implements Serializable{
+public class Review extends AbstractEntity<Long> implements Serializable {
 
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id")
-    private Room room;
+    // review theo loại phòng, không phải phòng vật lý
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "room_type_id", nullable = false)
+    private RoomType roomType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id")
+    // link reservation để xác minh khách đã ở thật
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
+    @Min(1) @Max(5)
+    @Column(nullable = false)
     private Integer rating;
 
     @Column(columnDefinition = "TEXT")
-    private String comment;
-
+    private String comment; // nullable — không bắt buộc viết comment
 }

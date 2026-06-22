@@ -21,16 +21,19 @@ public class ReservationRoom extends AbstractEntity<Long> implements Serializabl
     @JoinColumn(name = "reservation_room_type_id", nullable = false)
     private ReservationRoomType reservationRoomType;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "room_id", nullable = false)
-    private Room room; // 1 phòng cụ thể: 101, 102, 301...
-
+    // nullable — check-in mới gán phòng cụ thể
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_by")
-    private User assignedBy; // nullable — có thể chưa được assign
+    @JoinColumn(name = "room_id", nullable = true)
+    private Room room;
+
+    // nullable — chưa assign thì chưa có ai assign
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_by", nullable = true)
+    private User assignedBy;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'PENDING_ASSIGN'")
+    @Builder.Default
     private AssignStatus status = AssignStatus.PENDING_ASSIGN;
 
     @Builder.Default
