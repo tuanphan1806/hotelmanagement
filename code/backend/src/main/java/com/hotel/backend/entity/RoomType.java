@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "room_types")
@@ -32,4 +34,12 @@ public class RoomType {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToMany
+    @JoinTable(
+        name = "room_type_facilities",
+        joinColumns = @JoinColumn(name = "room_type_id"),
+        inverseJoinColumns = @JoinColumn(name = "facility_id")
+    )
+    private Set<Facility> facilities = new HashSet<>();
 }

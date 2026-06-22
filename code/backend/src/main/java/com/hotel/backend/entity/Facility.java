@@ -21,13 +21,16 @@ public class Facility {
     @Column(name = "facility_name")
     private String facilityName;
 
+    @Column(name = "type")
+    private String type;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
     private String icon;
 
     @ManyToMany(mappedBy = "facilities")
-private Set<Room> rooms = new HashSet<>();
+    private Set<RoomType> roomTypes = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

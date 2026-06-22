@@ -38,13 +38,6 @@ public class Room {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @ManyToMany
-    @JoinTable(
-        name = "room_facilities",
-        joinColumns = @JoinColumn(name = "room_id"),
-        inverseJoinColumns = @JoinColumn(name = "facility_id")
-    )
-    private Set<Facility> facilities = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
