@@ -14,6 +14,8 @@ public class Gallery extends AbstractEntity<Long> implements Serializable{
     @Column(name = "type")
     private String type;
 
+    @Column(name = "title")
+    private String title;
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
