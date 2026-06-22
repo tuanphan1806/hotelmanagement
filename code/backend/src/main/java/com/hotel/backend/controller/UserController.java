@@ -1,5 +1,88 @@
 package com.hotel.backend.controller;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+/**
+ * REST Controller cho User.
+ *
+ * Base URL: /api/user
+ *  
+ * 
+ */
+import org.springframework.web.service.invoker.HttpRequestValues;
+
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import com.hotel.backend.dto.request.UserCreationRequest;
+import com.hotel.backend.dto.request.UserPasswordRequest;
+import com.hotel.backend.dto.request.UserUpdateRequest;
+import com.hotel.backend.service.UserService;
+
+@RestController
+@RequestMapping("/api/user")
+@RequiredArgsConstructor
+@Slf4j(topic = "USER-CONTROLLER")
 public class UserController {
+
+    private final UserService userService;
+
+    @Operation(summary = "Create User", description = "API add new user to database")
+    @PostMapping("/add")
+    public ResponseEntity<Object> CreateUser(@RequestBody UserCreationRequest request){
+        Map<String,Object>result=new LinkedHashMap<>();
+        result.put("status", HttpStatus.CREATED.value());
+        result.put("message","User created successfully");
+        result.put("data",userService.save(request));
+        return new ResponseEntity<>(result,HttpStatus.CREATED);
+    }
+
+
+
+    @Operation(summary = "Update User", description = "API update user to database")
+    @PutMapping("/upd")
+    public Map<String,Object> updateUser(@RequestBody UserUpdateRequest request){
+
+        userService.update(request);
+        Map<String,Object>result=new LinkedHashMap<>();
+        result.put("status", HttpStatus.ACCEPTED.value());
+        result.put("message","User updated successfully");
+        result.put("data","");
+        return result;
+    }
+
+    @Operation(summary = "Change Password", description = "API change password user")
+    @PutMapping("/change-password")
+    public Map<String,Object> changePassword(@RequestBody UserPasswordRequest request){
+
+        userService.changePassword(request);
+        Map<String,Object>result=new LinkedHashMap<>();
+        result.put("status", HttpStatus.NO_CONTENT.value());
+        result.put("message","Password updated successfully");
+        result.put("data","");
+        return result;
+    }
+
+    @Operation(summary = "Delete User", description = "API delete user to database")
+    @PutMapping("/del/{userId}")
+    public Map<String,Object> deleteUser(@PathVariable Long userId){
+
+        userService.delete(userId);
+        Map<String,Object>result=new LinkedHashMap<>();
+        result.put("status", HttpStatus.RESET_CONTENT.value());
+        result.put("message","User deleted successfully");
+        result.put("data","");
+        return result;
+    }
     
 }

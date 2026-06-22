@@ -1,17 +1,36 @@
 package com.hotel.backend.dto.request;
-import lombok.Data;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
 
-@Data
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.util.Set;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReservationRequest {
+
+    @NotNull
     private Long customerId;
+
+    @NotNull
     private LocalDate checkIn;
+
+    @NotNull
     private LocalDate checkOut;
-    private BigDecimal discountAmount;
-    private BigDecimal taxAmount;
-    private String note;
+
+    @Min(1)
     private Integer guestCount;
-    private List<ReservationRoomTypeRequest> roomTypes; // Danh sách các loại phòng và số lượng chọn đặt
+
+    private String note;
+
+    @Valid
+    @NotEmpty(message = "Phải chọn ít nhất một loại phòng")
+    private Set<ReservationRoomTypeRequest> roomTypes;
 }
