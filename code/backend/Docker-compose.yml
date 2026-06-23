@@ -7,11 +7,12 @@ services:
     environment:
       MYSQL_DATABASE: hotelmanagement
       MYSQL_PASSWORD: password
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
-      - 3306:3306
+      - 3307:3306
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/initdb.sql
+      # - ./init.sql:/docker-entrypoint-initdb.d/initdb.sql
     networks:
       - default
   # postgres:
@@ -33,18 +34,19 @@ services:
 
   backend:
     container_name: backend
-    build: ./
-    dockerfile: dockerfile
+    build:
+      context: ./
+      dockerfile: Dockerfile
     ports:
-      -8080:8080
+      - 8080:8080
     
     networks:
       - default
 
 networks:
   default:
-  name: backend
+    name: backend
 
 volumes:
-  mysql:
+  mysql-data:
 

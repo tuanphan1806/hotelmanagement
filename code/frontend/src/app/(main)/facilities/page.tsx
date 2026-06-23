@@ -1,7 +1,31 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { FACILITIES_CONTENT } from "@/constants/content";
+import { apiClient } from "@/lib/api";
 
 export default function FacilitiesPage() {
+  const [facilities, setFacilities] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    apiClient.get('/api/v1/facilities')
+      .then(res => {
+        if (res.data && res.data.data) {
+          setFacilities(res.data.data);
+        } else {
+          setFacilities(FACILITIES_CONTENT.main.data);
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching facilities, using fallback static data:", err);
+        setFacilities(FACILITIES_CONTENT.main.data);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -44,20 +68,27 @@ export default function FacilitiesPage() {
 
       {/* Facilities List */}
       <section className="max-w-5xl mx-auto px-6 pb-24 space-y-20">
-        {FACILITIES_CONTENT.main.data.map((facility, index) => (
-          <div key={index} className="relative w-full h-[500px] flex justify-center group overflow-hidden shadow-xl">
-            <img 
-              src={facility.image} 
-              alt={facility.name} 
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute bottom-0 bg-white px-24 py-5 flex items-center justify-center shadow-md">
-              <h3 className="font-bold text-xl md:text-2xl text-primary-navy tracking-widest whitespace-nowrap">
-                {facility.name}
-              </h3>
+        {facilities.map((facility, index) => {
+          const name = facility.facilityName || facility.name;
+          const image = facility.icon || facility.image;
+          // Skip utility/service facilities like FREE WIFI from rendering on facilities list if they don't have custom image
+          if (image === 'wifi-icon' || !image) return null;
+          
+          return (
+            <div key={index} className="relative w-full h-[500px] flex justify-center group overflow-hidden shadow-xl">
+              <img 
+                src={image} 
+                alt={name} 
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute bottom-0 bg-white px-24 py-5 flex items-center justify-center shadow-md">
+                <h3 className="font-bold text-xl md:text-2xl text-primary-navy tracking-widest whitespace-nowrap">
+                  {name}
+                </h3>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       {/* Testimonials Section */}

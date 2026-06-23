@@ -1,7 +1,31 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { ROOMS_CONTENT } from "@/constants/content";
+import { apiClient } from "@/lib/api";
 
 export default function RoomsPage() {
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    apiClient.get('/api/v1/room-types')
+      .then(res => {
+        if (res.data && res.data.data) {
+          setRooms(res.data.data);
+        } else {
+          setRooms(ROOMS_CONTENT.main.data);
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching room types, using fallback static data:", err);
+        setRooms(ROOMS_CONTENT.main.data);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -56,33 +80,39 @@ export default function RoomsPage() {
 
       {/* Rooms List */}
       <section className="max-w-5xl mx-auto px-6 pb-24 space-y-16">
-        {ROOMS_CONTENT.main.data.map((room, index) => (
-          <div key={index} className="w-full border-2 border-gray-200 rounded-sm overflow-hidden shadow-sm hover:shadow-lg transition-shadow bg-white">
-            <div className="relative w-full h-[350px] md:h-[450px] overflow-hidden">
-              <img 
-                src={room.image} 
-                alt={room.title} 
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+        {rooms.map((room, index) => {
+          const title = room.typeName || room.title;
+          const image = room.imageUrl || room.image;
+          const price = typeof room.price === 'number' ? `$${room.price} Avg/night` : room.price;
+          
+          return (
+            <div key={index} className="w-full border-2 border-gray-200 rounded-sm overflow-hidden shadow-sm hover:shadow-lg transition-shadow bg-white">
+              <div className="relative w-full h-[350px] md:h-[450px] overflow-hidden">
+                <img 
+                  src={image} 
+                  alt={title} 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
+              <div className="bg-primary-navy py-5 text-center">
+                <h3 className="text-white font-bold text-2xl tracking-widest uppercase">
+                  {title}
+                </h3>
+              </div>
+              <div className="bg-white py-6 px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                <button className="flex items-center gap-4 font-bold text-text-light hover:text-accent-gold transition-colors text-lg tracking-wide group">
+                  <span className="w-10 h-10 rounded-full border-2 border-accent-gold text-accent-gold flex items-center justify-center text-3xl pb-1 group-hover:bg-accent-gold group-hover:text-white transition-colors">
+                    +
+                  </span>
+                  VIEW ROOM DETAILS
+                </button>
+                <button className="bg-accent-gold hover:bg-yellow-500 text-white font-bold py-4 px-10 rounded-sm transition-colors text-lg tracking-widest">
+                  {price}
+                </button>
+              </div>
             </div>
-            <div className="bg-primary-navy py-5 text-center">
-              <h3 className="text-white font-bold text-2xl tracking-widest uppercase">
-                {room.title}
-              </h3>
-            </div>
-            <div className="bg-white py-6 px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-              <button className="flex items-center gap-4 font-bold text-text-light hover:text-accent-gold transition-colors text-lg tracking-wide group">
-                <span className="w-10 h-10 rounded-full border-2 border-accent-gold text-accent-gold flex items-center justify-center text-3xl pb-1 group-hover:bg-accent-gold group-hover:text-white transition-colors">
-                  +
-                </span>
-                VIEW ROOM DETAILS
-              </button>
-              <button className="bg-accent-gold hover:bg-yellow-500 text-white font-bold py-4 px-10 rounded-sm transition-colors text-lg tracking-widest">
-                {room.price}
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       {/* Testimonials Section */}
