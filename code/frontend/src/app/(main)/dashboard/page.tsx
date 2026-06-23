@@ -14,7 +14,7 @@ export default function DashboardPage() {
     const timer = setTimeout(() => {
       setUser({
         name: "Admin User",
-        email: "manager@lumierpalace.com",
+        email: "manager@luxuryhotel.com",
         role: "ADMIN"
       });
       setIsLoading(false);

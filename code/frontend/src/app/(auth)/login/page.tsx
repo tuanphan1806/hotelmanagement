@@ -13,8 +13,8 @@ import {
 import LoginForm from './LoginForm';
 
 export const metadata: Metadata = {
-  title: 'Login – Lumière Palace',
-  description: 'Sign in to access your Lumière Palace management portal.',
+  title: 'Login – Luxury Hotel',
+  description: 'Sign in to access your Luxury Hotel management portal.',
 };
 
 export default function LoginPage() {
