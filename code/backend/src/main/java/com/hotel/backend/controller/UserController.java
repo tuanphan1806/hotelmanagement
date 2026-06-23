@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -74,7 +75,7 @@ public class UserController {
     }
 
     @Operation(summary = "Delete User", description = "API delete user to database")
-    @PutMapping("/del/{userId}")
+    @DeleteMapping("/del/{userId}")
     public Map<String,Object> deleteUser(@PathVariable Long userId){
 
         userService.delete(userId);
