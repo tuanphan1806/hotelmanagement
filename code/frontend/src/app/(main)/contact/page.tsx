@@ -33,10 +33,9 @@ export default function ContactPage() {
     <div className="min-h-screen bg-bg-light">
       {/* Hero Section */}
       <section 
-        className="relative h-[50vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: `url(${hero.bg})` }}
+        className="relative h-[50vh] flex items-center justify-center bg-primary-navy"
       >
-        <div className="absolute inset-0 bg-primary-navy/50"></div>
+        
         <div className="relative z-10 text-center text-white px-6">
           <h1 className="text-5xl md:text-6xl font-black tracking-wide text-white mb-4 drop-shadow-2xl">
             {hero.title}

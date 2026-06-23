@@ -5,12 +5,14 @@ import java.io.Serializable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 @Getter
+@Setter
 @ToString
 public class UserUpdateRequest implements Serializable{
 
-    private Long id;
+    // private Long id;
 
     @NotBlank
     private String fullName;
@@ -27,4 +29,5 @@ public class UserUpdateRequest implements Serializable{
     private String phone;
 
     private String address;
+    private String imageUrl;
 }

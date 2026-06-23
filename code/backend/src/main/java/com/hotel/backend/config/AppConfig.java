@@ -24,6 +24,19 @@ public class AppConfig {
                 .sessionManagement( manager -> manager.sessionCreationPolicy(STATELESS));
         return http.build();
     }
+
+//     .authorizeHttpRequests(request -> request
+//     // Public endpoints
+//     .requestMatchers(HttpMethod.POST, "/api/user/add").permitAll()
+//     .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+//     .requestMatchers("/uploads/**").permitAll()
+
+//     // Admin only
+//     .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+//     // Còn lại phải đăng nhập
+//     .anyRequest().authenticated()
+// )
     @Bean
     public WebSecurityCustomizer IgnoreResources() {
         return webSecurity -> webSecurity.ignoring().requestMatchers("/actuator/**", "/v3/**", "/swagger-ui*/*swagger-initializer*", "/swagger-ui*/**","/favicon.ico");

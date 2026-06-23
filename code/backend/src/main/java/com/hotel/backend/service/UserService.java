@@ -13,7 +13,7 @@ public interface UserService {
     UserResponse findByUsername(String username);
     UserResponse findByEmail(String email);
     Long save(UserCreationRequest req);
-    void update(UserUpdateRequest req);
+    void update(UserUpdateRequest req,Long id);
     void changePassword(UserPasswordRequest req);
     void delete(Long id);
 }
