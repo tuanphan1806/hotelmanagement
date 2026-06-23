@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.service.invoker.HttpRequestValues;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +22,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,7 +41,7 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "Create User", description = "API add new user to database")
-    @PostMapping("/add")
+    @PostMapping("")
     public ResponseEntity<Object> CreateUser(@RequestBody UserCreationRequest request){
         Map<String,Object>result=new LinkedHashMap<>();
         result.put("status", HttpStatus.CREATED.value());
@@ -51,19 +53,23 @@ public class UserController {
 
 
     @Operation(summary = "Update User", description = "API update user to database")
-    @PutMapping("/upd")
-    public Map<String,Object> updateUser(@RequestBody UserUpdateRequest request){
-
-        userService.update(request);
-        Map<String,Object>result=new LinkedHashMap<>();
-        result.put("status", HttpStatus.ACCEPTED.value());
-        result.put("message","User updated successfully");
-        result.put("data","");
-        return result;
+    @PutMapping("/{userId}")
+    public ResponseEntity<Map<String, Object>> updateUser(
+            @PathVariable Long userId,
+            @Valid @RequestBody UserUpdateRequest request) {
+            
+     // set id từ path vào request
+        userService.update(request,userId);
+            
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("status", HttpStatus.OK.value());
+        result.put("message", "User updated successfully");
+            
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "Change Password", description = "API change password user")
-    @PutMapping("/change-password")
+    @PatchMapping("/change-password")
     public Map<String,Object> changePassword(@RequestBody UserPasswordRequest request){
 
         userService.changePassword(request);
@@ -75,7 +81,7 @@ public class UserController {
     }
 
     @Operation(summary = "Delete User", description = "API delete user to database")
-    @DeleteMapping("/del/{userId}")
+    @DeleteMapping("/{userId}")
     public Map<String,Object> deleteUser(@PathVariable Long userId){
 
         userService.delete(userId);

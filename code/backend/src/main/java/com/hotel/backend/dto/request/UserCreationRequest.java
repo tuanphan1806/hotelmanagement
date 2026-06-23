@@ -28,4 +28,5 @@ public class UserCreationRequest implements Serializable{
     private String phone;
 
     private String address;
+    private String imageUrl;
 }

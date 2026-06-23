@@ -137,7 +137,7 @@ public class GalleryServiceImpl implements GalleryService {
         log.info("Đã xóa gallery id={}", id);
     }
 
-    // ==================== HELPERS ====================
+   
 
     private Gallery findOrThrow(Long id) {
 

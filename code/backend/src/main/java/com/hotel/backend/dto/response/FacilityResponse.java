@@ -20,12 +20,7 @@ public class FacilityResponse {
     private String type;
     private String description;
     private String icon;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdAt;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updatedAt;
+    private String imageUrl;
 
     /** Dạng rút gọn — nhúng trong RoomTypeResponse.facilities. */
     @Getter
@@ -37,6 +32,6 @@ public class FacilityResponse {
         private Long id;
         private String facilityName;
         private String type;
-        private String icon;
+        private String imageUrl;
     }
 }

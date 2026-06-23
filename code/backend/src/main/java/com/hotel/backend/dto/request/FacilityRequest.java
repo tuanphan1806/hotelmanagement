@@ -1,5 +1,6 @@
 package com.hotel.backend.dto.request;
 
+
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class FacilityRequest {
 
     private String description;
 
-    @Size(max = 255, message = "Đường dẫn icon tối đa 255 ký tự")
-    private String icon;
+
+    @Size(max = 500, message = "Đường dẫn ảnh tối đa 500 ký tự")
+    private String imageUrl;
 }

@@ -153,7 +153,6 @@ public class RoomTypeServiceImpl implements RoomTypeService {
                         .id(f.getId())
                         .facilityName(f.getFacilityName())
                         .type(f.getType())
-                        .icon(f.getIcon())
                         .build())
                 .collect(Collectors.toList());
 

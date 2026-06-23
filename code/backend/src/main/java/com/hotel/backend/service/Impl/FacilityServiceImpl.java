@@ -76,7 +76,7 @@ public class FacilityServiceImpl implements FacilityService {
                 .facilityName(request.getFacilityName())
                 .type(request.getType())
                 .description(request.getDescription())
-                .icon(request.getIcon())
+                .imageUrl(request.getImageUrl()) 
                 .build();
 
         Facility saved = facilityRepository.save(facility);
@@ -98,8 +98,7 @@ public class FacilityServiceImpl implements FacilityService {
         facility.setFacilityName(request.getFacilityName());
         facility.setType(request.getType());
         facility.setDescription(request.getDescription());
-        facility.setIcon(request.getIcon());
-
+        facility.setImageUrl(request.getImageUrl()); 
         Facility saved = facilityRepository.save(facility);
         log.info("Đã cập nhật facility id={}", saved.getId());
         return mapToResponse(saved);
@@ -133,9 +132,7 @@ public class FacilityServiceImpl implements FacilityService {
                 .facilityName(entity.getFacilityName())
                 .type(entity.getType())
                 .description(entity.getDescription())
-                .icon(entity.getIcon())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
+                .imageUrl(entity.getImageUrl()) 
                 .build();
     }
 }

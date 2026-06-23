@@ -62,6 +62,7 @@ public class UserServiceImpl implements UserService {
            .email(req.getEmail())
            .phone(req.getPhone())
            .address(req.getAddress())
+           .imageUrl(req.getImageUrl()) 
            .build();
            // role & status tự nhận default từ @Builder.Default
 
@@ -71,15 +72,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor=Exception.class)
-    public void update(UserUpdateRequest req) {
+    public void update(UserUpdateRequest req,Long id) {
         //get user by id
-        User user = getUserById(req.getId());
+        User user = getUserById(id);
         //set data
         user.setFullName(req.getFullName());
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
         user.setPhone(req.getPhone());
         user.setAddress(req.getAddress());
+        if (req.getImageUrl() != null) {
+        user.setImageUrl(req.getImageUrl());      // ← thêm, chỉ update nếu có
+        }
         //save to db
         userRepository.save(user);
 
