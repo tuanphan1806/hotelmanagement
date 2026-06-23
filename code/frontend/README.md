@@ -1,73 +1,80 @@
-# React + TypeScript + Vite
+# Lumière Palace - Hotel Management Frontend ⚜
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend của hệ thống Quản lý Khách sạn Cao cấp **Lumière Palace**. Dự án được xây dựng trên nền tảng **Next.js 15 (App Router)** kết hợp với **TypeScript**, **TailwindCSS** và hệ thống thiết kế premium (glassmorphic UI, custom animations).
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Tính năng chính (Frontend)
 
-## React Compiler
+*   **🔒 Hệ thống Authentication Premium**:
+    *   Trang Đăng nhập (Login) & Đăng ký (Signup) được thiết kế hiện đại, responsive hoàn toàn.
+    *   Tích hợp Đăng nhập qua mạng xã hội (Google, Facebook).
+    *   Quy trình Đăng ký tài khoản khách hàng (Signup Flow) tối giản 2 bước (Multi-step form) để tối ưu hóa trải nghiệm khách đặt phòng (Guest/Customer).
+*   **🏢 Khách hàng & Thành viên (Guest-focused)**:
+    *   Giao diện giới thiệu phòng (Rooms), Dịch vụ & Tiện ích (Facilities).
+    *   Thông tin liên hệ & Đặt lịch (Contact & Booking).
+*   **📊 Trang quản trị (Dashboard)**:
+    *   Bảng điều khiển trực quan cho nhân viên/quản trị viên khách sạn.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠 Công nghệ sử dụng
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+*   **Core**: Next.js 15 (App Router), React 19
+*   **Language**: TypeScript
+*   **Styling**: Tailwind CSS
+*   **Validation**: Zod (Form validation)
+*   **Icons**: Lucide React
+*   **Linting & Quality**: ESLint, Prettier, Husky (Pre-commit hooks)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🚀 Khởi chạy dự án (Local)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 📋 Yêu cầu hệ thống
+*   **Node.js**: Phiên bản LTS mới nhất (Khuyên dùng v20+)
+*   **Package Manager**: `pnpm` (Khuyên dùng) hoặc `npm` / `yarn`
+
+### ⚙ Các bước cài đặt
+
+1.  Cài đặt các gói phụ thuộc (Dependencies):
+    ```bash
+    pnpm install
+    ```
+
+2.  Khởi động máy chủ phát triển (Development Server):
+    ```bash
+    pnpm run dev
+    ```
+    Mở [http://localhost:3000](http://localhost:3000) trên trình duyệt của bạn để xem kết quả.
+
+3.  Build dự án phục vụ Production:
+    ```bash
+    pnpm run build
+    pnpm start
+    ```
+
+---
+
+## 📁 Cấu trúc thư mục Frontend
+
+```
+code/frontend/
+├── public/              # Static assets (hình ảnh, logo, v.v.)
+└── src/
+    ├── app/             # Next.js App Router Pages & Layouts
+    │   ├── (auth)/      # Route Group cho Authentication (Login/Signup)
+    │   └── (main)/      # Route Group cho Main pages (Rooms, Dashboard...)
+    ├── components/      # Các React Components dùng chung
+    │   ├── AuthForm/    # Các thành phần form Auth (InputField)
+    │   └── UI/          # Các UI Component cơ bản (Button)
+    ├── constants/       # Định nghĩa hằng số, text content tĩnh
+    └── lib/             # Các hàm Helper, Cookies utilities
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛡 Quy chuẩn Commit & Code
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+*   **Husky**: Dự án đã tích hợp Husky để tự động chạy kiểm tra định dạng và cấu trúc code trước mỗi lần commit (`pre-commit hook`).
+*   **Quy tắc đặt tên commit**: Khuyên dùng chuẩn [Conventional Commits](https://www.conventionalcommits.org/) (ví dụ: `feat: ...`, `fix: ...`, `chore: ...`).
