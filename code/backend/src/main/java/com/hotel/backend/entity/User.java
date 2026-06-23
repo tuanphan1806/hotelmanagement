@@ -2,6 +2,7 @@ package com.hotel.backend.entity;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hotel.backend.constant.Role;
 import com.hotel.backend.constant.UserStatus;
 import jakarta.persistence.*;
@@ -21,23 +22,29 @@ public class User extends AbstractEntity<Long> implements Serializable{
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
-
-    @Column(unique = true)
+    @Column(name = "username",nullable = false,unique = true)
+    private String username;
+    @Column(nullable = false,unique = true)
     private String email;
 
+    @Column(nullable = true)
     private String password;
+    @Column(nullable = false, unique = true)
     private String phone;
     
     @Column(columnDefinition = "TEXT")
     private String address;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role=Role.CUSTOMER;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    private UserStatus status= UserStatus.ACTIVE;
 
-    @OneToMany(mappedBy = "customer")
+    @JsonIgnore
+    @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
     private Set<Reservation> reservations;
 
 }
