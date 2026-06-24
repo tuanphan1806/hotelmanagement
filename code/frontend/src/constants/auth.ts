@@ -1,6 +1,6 @@
 // ─── Brand ───
-export const BRAND_NAME = 'Lumière Palace';
-export const BRAND_TAGLINE = 'LUXURY HOTEL & RESORT';
+export const BRAND_NAME = 'LUXURY';
+export const BRAND_TAGLINE = 'HOTELS';
 export const BADGE_ESTABLISHED = '⚜ ESTABLISHED SINCE 1925';
 
 // ─── Login Hero ───
@@ -28,7 +28,7 @@ export const SIGNUP_FEATURES = [
 export const FORM_TITLE_LOGIN = 'Welcome back';
 export const FORM_SUBTITLE_LOGIN = 'Sign in to access your management portal.';
 export const FORM_TITLE_SIGNUP = 'Create your account';
-export const FORM_SUBTITLE_SIGNUP = 'Join Lumière Palace and unlock exclusive benefits.';
+export const FORM_SUBTITLE_SIGNUP = 'Join Luxury Hotels and unlock exclusive benefits.';
 
 // ─── Social ───
 export const SOCIAL_GOOGLE = 'Continue with Google';
@@ -38,7 +38,7 @@ export const DIVIDER_TEXT_SIGNUP = 'or register with email';
 
 // ─── Login Form ───
 export const LABEL_EMAIL = 'Email Address';
-export const PLACEHOLDER_EMAIL = 'manager@lumierepalace.com';
+export const PLACEHOLDER_EMAIL = 'manager@luxuryhotels.com';
 export const LABEL_PASSWORD = 'Password';
 export const PLACEHOLDER_PASSWORD = '••••••••••';
 export const LINK_FORGOT = 'Forgot password?';
@@ -64,13 +64,24 @@ export const BTN_REGISTERING = 'Creating account...';
 export const LINK_LOGIN = 'Sign in';
 export const TEXT_LOGIN_PROMPT = 'Already have an account? ';
 
-// ─── Errors ───
-export const ERROR_REQUIRED = 'Vui lòng điền đầy đủ thông tin.';
-export const ERROR_PASSWORD_MATCH = 'Mật khẩu xác nhận không khớp.';
-export const ERROR_PASSWORD_LENGTH = 'Mật khẩu phải chứa ít nhất 6 ký tự.';
-export const ERROR_REGISTER_FAILED = 'Có lỗi xảy ra trong quá trình đăng ký.';
+// ─── Errors (signup)───
+export const ERROR_REQUIRED = 'Please fill in all required fields.';
+export const ERROR_INVALID_FIRST_NAME = 'Invalid First Name. It must be between 2 to 50 characters and contain letters only.';
+export const ERROR_INVALID_LAST_NAME = 'Invalid Last Name. It must be between 2 to 50 characters and contain letters only.';
+export const ERROR_EMAIL_DOMAIN = 'Access denied. You must use an official @luxuryhotels.com email address.';
+export const ERROR_EMAIL_USERNAME_LENGTH = 'Invalid email. The username part before @ must be at least 3 characters long.';
+export const ERROR_EMAIL_FORMAT = 'Invalid email format. The username before @ must include both letters and numbers (e.g., thui1, alex9x, it01).';
+export const ERROR_PASSWORD_MATCH = 'Passwords do not match.';
+export const ERROR_PASSWORD_SPACE = 'Password must not contain any spaces.';
+export const ERROR_PASSWORD_STRICT = 'Password must be at least 8 characters, containing ONLY standard English letters (1 uppercase, 1 lowercase), 1 number, and 1 special character. No accents allowed.';
+export const ERROR_PASSWORD_LENGTH = 'Password must be at least 6 characters long.'; // Giữ lại dự phòng
+export const ERROR_REGISTER_FAILED = 'An error occurred during registration. Please try again.';
+// ─── Errors (login)───
+export const ERROR_EMAIL_INVALID = 'Please enter a valid email address.'; 
+export const ERROR_ACCOUNT_NOT_FOUND = 'No account found with this email address.'; 
+export const ERROR_WRONG_PASSWORD = 'The password you entered is incorrect.';
 
-export const DEFAULT_EMAIL = 'manager@lumierepalace.com';
+export const DEFAULT_EMAIL = 'manager@luxuryhotels.com';
 
 // ─── Roles (assigned by admin, not user-selectable) ───
 export const ROLES = {

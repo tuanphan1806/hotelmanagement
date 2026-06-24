@@ -1,5 +1,6 @@
 import React from "react";
 import { ROOMS_CONTENT } from "@/constants/content";
+import { BRAND_NAME, BRAND_TAGLINE } from "@/constants/auth";
 
 export default function RoomsPage() {
   return (
@@ -12,10 +13,17 @@ export default function RoomsPage() {
           style={{ backgroundImage: `url("${ROOMS_CONTENT.hero.bg}")` }}
         ></div>
         
-        <div className="relative z-10 pl-16 md:pl-32 max-w-4xl text-left mt-20">
-          <h2 className="text-white text-3xl md:text-4xl font-light tracking-wide mb-2">WELCOME TO</h2>
-          <h1 className="text-white font-serif text-6xl md:text-8xl font-bold tracking-widest leading-none mb-2">LUXURY</h1>
-          <h1 className="text-white font-serif text-4xl md:text-5xl font-bold tracking-[0.4em] mb-6">HOTELS</h1>
+          <div className="relative z-10 pl-16 md:pl-32 max-w-4xl text-left mt-20">
+            <h2 className="text-white text-3xl md:text-4xl font-light tracking-wide mb-2">WELCOME TO</h2>
+          <div className="flex flex-col items-center">
+            <h2 className="text-white font-serif text-3xl font-bold tracking-widest leading-none">
+              {BRAND_NAME}
+            </h2>
+
+            <p className="text-white text-xs font-bold tracking-[0.4em] mt-1">
+              {BRAND_TAGLINE}
+            </p>
+          </div>
           <p className="text-white text-lg md:text-xl font-light max-w-lg leading-relaxed">
             Book your stay and enjoy Luxury<br/>redefined at the most affordable rates.
           </p>

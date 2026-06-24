@@ -25,7 +25,7 @@ export default function MainLayout({
             Rooms
           </Link>
           <Link href="/contact" className="hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-accent-gold after:transition-all">
-            Contact-us
+            Contact Us
           </Link>
           <Link href="/login" className="hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-accent-gold after:transition-all">Login</Link>
           <Link href="/signup" className="hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-accent-gold after:transition-all">Sign Up</Link>
