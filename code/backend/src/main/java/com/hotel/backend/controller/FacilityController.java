@@ -15,18 +15,18 @@ import java.util.List;
 /**
  * REST Controller cho Facility.
  *
- * Base URL: /api/v1/facilities
+ * Base URL: /api/facilities
  *
- * GET    /api/v1/facilities                          → getAll()
- * GET    /api/v1/facilities?type=WIFI                → getByType()
- * GET    /api/v1/facilities?keyword=pool             → search()
- * GET    /api/v1/facilities/{id}                     → getById()
- * POST   /api/v1/facilities                          → create()
- * PUT    /api/v1/facilities/{id}                     → update()
- * DELETE /api/v1/facilities/{id}                     → delete()
+ * GET    /api/facilities                          → getAll()
+ * GET    /api/facilities?type=WIFI                → getByType()
+ * GET    /api/facilities?keyword=pool             → search()
+ * GET    /api/facilities/{id}                     → getById()
+ * POST   /api/facilities                          → create()
+ * PUT    /api/facilities/{id}                     → update()
+ * DELETE /api/facilities/{id}                     → delete()
  */
 @RestController
-@RequestMapping("/api/v1/facilities")
+@RequestMapping("/api/facilities")
 @RequiredArgsConstructor
 public class FacilityController {
 

@@ -18,7 +18,7 @@ public class UserUpdateRequest implements Serializable{
     private String fullName;
     @NotBlank
     private String username;
-    @Email
+    @Email(message = "email invalid")
     @NotBlank
     private String email;
 

@@ -26,7 +26,7 @@ import java.util.List;
  * DELETE /api/v1/room-types/{id}                     → delete()
  */
 @RestController
-@RequestMapping("/api/v1/room-types")
+@RequestMapping("/api/room-types")
 @RequiredArgsConstructor
 public class RoomTypeController {
 

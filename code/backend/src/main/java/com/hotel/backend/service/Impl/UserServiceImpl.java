@@ -1,22 +1,31 @@
 package com.hotel.backend.service.Impl;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.hotel.backend.constant.UserStatus;
 import com.hotel.backend.constant.UserStatus;
 import com.hotel.backend.dto.request.UserCreationRequest;
 import com.hotel.backend.dto.request.UserPasswordRequest;
 import com.hotel.backend.dto.request.UserUpdateRequest;
+import com.hotel.backend.dto.response.UserPageResponse;
 import com.hotel.backend.dto.response.UserResponse;
 import com.hotel.backend.service.UserService;
 import com.hotel.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.hotel.backend.entity.User;
+import com.hotel.backend.exception.DuplicateResourceException;
 import com.hotel.backend.exception.ResourceNotFoundException;
 @Service
 @Slf4j(topic = "USER-SERVICE")
@@ -28,15 +37,58 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
     @Override
-    public List<UserResponse> findAll() {
-        // TODO
-        return List.of();
-    }
+    public UserPageResponse findAll(String keyword,String sort, int page,int size) {
+        
 
+        //Sorting
+        Sort.Order order= new Sort.Order(Sort.Direction.ASC, "id");
+        if (StringUtils.hasLength(sort)) {
+            Pattern pattern= Pattern.compile("^(\\w+?)(:)(.*)");//ten cot:asc desc
+            Matcher matcher=pattern.matcher(sort);
+            if (matcher.find()) {
+                String columnName =matcher.group(1);
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    order= new Sort.Order(Sort.Direction.ASC, columnName);
+                } else{
+                    order= new Sort.Order(Sort.Direction.DESC, columnName);
+                }
+            }
+        }
+
+        // xu ly TH FE muon bat dau voi page =1
+        int pageNo=0;
+        if (page>0) {
+            pageNo=page-1;
+        }
+        //Paging
+        Pageable pageable= PageRequest.of(pageNo, size, Sort.by(order));
+
+        Page<User> entityPage=null;
+        if (StringUtils.hasLength(keyword)) {
+            keyword="%"+keyword.toLowerCase()+"%";
+            entityPage=userRepository.searchByKeyword(keyword,pageable);
+        }else{
+            entityPage= userRepository.findAll(pageable);
+        }
+
+        UserPageResponse response= getUserPageResponse(pageNo, size, entityPage);
+        return response;
+    }
+    
     @Override
     public UserResponse findById(Long id) {
-        // TODO
-        return null;
+        User user = getUserById(id);
+        return UserResponse.builder()
+                .id(id)
+                .fullName(user.getFullName())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .role(user.getRole())
+                .status(user.getStatus())
+                .imageUrl(user.getImageUrl())
+                .build();
     }
 
     @Override
@@ -55,7 +107,18 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor=Exception.class)
     public Long save(UserCreationRequest req) {
         log.info("Saving user", req.getUsername());
-        
+
+        if (userRepository.existsByUsername(req.getUsername())) {
+            throw new DuplicateResourceException("User", "username", req.getUsername());
+        }
+    
+        // Check duplicate email (nếu có)
+        if (userRepository.existsByEmail(req.getEmail())) {
+            throw new DuplicateResourceException("User", "email", req.getEmail());
+        }
+        if (userRepository.existsByPhone(req.getPhone())) {
+            throw new DuplicateResourceException("User", "phone", req.getPhone());
+        }
         User user = User.builder()
            .fullName(req.getFullName())
            .username(req.getUsername())
@@ -82,7 +145,7 @@ public class UserServiceImpl implements UserService {
         user.setPhone(req.getPhone());
         user.setAddress(req.getAddress());
         if (req.getImageUrl() != null) {
-        user.setImageUrl(req.getImageUrl());      // ← thêm, chỉ update nếu có
+        user.setImageUrl(req.getImageUrl());     
         }
         //save to db
         userRepository.save(user);
@@ -109,5 +172,31 @@ public class UserServiceImpl implements UserService {
 
     private User getUserById(Long id){
         return userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("User not found"));
+    }
+
+
+    //convert user entity to userResponse
+    private static UserPageResponse getUserPageResponse (int page,int size, Page<User> users){
+        List<UserResponse> userList = users.stream()
+                .map(entity -> UserResponse.builder()
+                .id(entity.getId())
+                .fullName(entity.getFullName())
+                .username(entity.getUsername())
+                .email(entity.getEmail())
+                .phone(entity.getPhone())
+                .address(entity.getAddress())
+                .role(entity.getRole())
+                .status(entity.getStatus())
+                .imageUrl(entity.getImageUrl())
+                .build()
+                ).toList();
+
+        UserPageResponse response= new UserPageResponse();
+        response.setPageNumber(page);
+        response.setPageSize(size);
+        response.setTotalElements(users.getTotalElements());
+        response.setTotalPages(users.getTotalPages());
+        response.setUsers(userList);
+        return response;
     }
 }

@@ -17,7 +17,7 @@ public class UserCreationRequest implements Serializable{
     @NotBlank
     private String username;
 
-    @Email
+    @Email(message = "email invalid")
     @NotBlank
     private String email;
 

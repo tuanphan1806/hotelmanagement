@@ -17,20 +17,20 @@ import java.util.List;
 /**
  * REST Controller cho Gallery.
  *
- * Base URL: /api/v1/galleries
+ * Base URL: /api/galleries
  *
- * GET    /api/v1/galleries                           → getAll()
- * GET    /api/v1/galleries?type=INTERIOR             → getByType()
- * GET    /api/v1/galleries?keyword=pool              → search()
- * GET    /api/v1/galleries?roomId=5                  → getByRoomId()
- * GET    /api/v1/galleries?hotel=true                → getHotelGalleries() (room_id IS NULL)
- * GET    /api/v1/galleries/{id}                      → getById()
- * POST   /api/v1/galleries                           → create()
- * PUT    /api/v1/galleries/{id}                      → update()
- * DELETE /api/v1/galleries/{id}                      → delete()
+ * GET    /api/galleries                           → getAll()
+ * GET    /api/galleries?type=INTERIOR             → getByType()
+ * GET    /api/galleries?keyword=pool              → search()
+ * GET    /api/galleries?roomId=5                  → getByRoomId()
+ * GET    /api/galleries?hotel=true                → getHotelGalleries() (room_id IS NULL)
+ * GET    /api/galleries/{id}                      → getById()
+ * POST   /api/galleries                           → create()
+ * PUT    /api/galleries/{id}                      → update()
+ * DELETE /api/galleries/{id}                      → delete()
  */
 @RestController
-@RequestMapping("/api/v1/galleries")
+@RequestMapping("/api/galleries")
 @RequiredArgsConstructor
 public class GalleryController {
 
