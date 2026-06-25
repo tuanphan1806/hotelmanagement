@@ -29,4 +29,5 @@ public class UserCreationRequest implements Serializable{
 
     private String address;
     private String imageUrl;
+    private String password;
 }

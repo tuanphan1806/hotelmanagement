@@ -41,6 +41,7 @@ public class Reservation extends AbstractEntity<Long> implements Serializable {
     @Column(name = "tax_amount", precision = 12, scale = 2, nullable = false)
     private BigDecimal taxAmount = BigDecimal.ZERO;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReservationStatus status= ReservationStatus.DRAFT;

@@ -40,7 +40,7 @@ public class Guest extends AbstractEntity<Long> implements Serializable{
     private LocalDate dateOfBirth;
 
     private String nationality;
-
+    @Builder.Default
     @Column(name = "is_primary")
     private Boolean isPrimary = false;
 

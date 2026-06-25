@@ -8,7 +8,13 @@ import com.hotel.backend.constant.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.io.Serializable;
 
 
@@ -18,7 +24,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class User extends AbstractEntity<Long> implements Serializable{
+public class User extends AbstractEntity<Long> implements UserDetails,Serializable{
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -28,6 +34,8 @@ public class User extends AbstractEntity<Long> implements Serializable{
     private String email;
 
     private String verificationCode;
+
+    @Builder.Default
     private boolean emailVerified = false;
     
     @Column(nullable = true)
@@ -52,5 +60,25 @@ public class User extends AbstractEntity<Long> implements Serializable{
     @JsonIgnore
     @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
     private Set<Reservation> reservations;
+
+    @Override 
+    public Collection<? extends GrantedAuthority> getAuthorities(){
+        return List.of();
+    }
+
+    @Override
+    public boolean isAccountNonExpired(){
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired(){
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled(){
+        return UserStatus.ACTIVE.equals(status);
+    }
 
 }

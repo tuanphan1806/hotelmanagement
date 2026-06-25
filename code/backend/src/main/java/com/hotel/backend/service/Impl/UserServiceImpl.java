@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
 
 import com.hotel.backend.entity.User;
 import com.hotel.backend.exception.DuplicateResourceException;
+import com.hotel.backend.exception.InvalidDataException;
 import com.hotel.backend.exception.ResourceNotFoundException;
 @Service
 @Slf4j(topic = "USER-SERVICE")
@@ -119,6 +120,7 @@ public class UserServiceImpl implements UserService {
            .phone(req.getPhone())
            .address(req.getAddress())
            .imageUrl(req.getImageUrl()) 
+            .password(passwordEncoder.encode(req.getPassword()))
            .build();
            // role & status tự nhận default từ @Builder.Default
 
@@ -156,9 +158,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(UserPasswordRequest req) {
         User user = getUserById(req.getId());
-        if(req.getPassword().equals(req.getConfirmPassword())){
-            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        if(!req.getPassword().equals(req.getConfirmPassword())){
+            throw new InvalidDataException("Password and confirm password do not match");
         }
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
         userRepository.save(user);
     }
 
