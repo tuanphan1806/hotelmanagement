@@ -1,7 +1,7 @@
 package com.hotel.backend.config;
 
 import java.io.IOException;
-import java.sql.Date;
+
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -68,6 +68,27 @@ public class CustomizeRequestFilter extends OncePerRequestFilter {
         
         filterChain.doFilter(request, response);
     }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
 
+        // Auth endpoints
+        if (uri.startsWith("/auth/")) return true;
+
+        // Public GET endpoints
+        if (method.equals("GET")) {
+            return uri.startsWith("/api/room-types") ||
+                   uri.startsWith("/api/facilities") ||
+                   uri.startsWith("/api/galleries") ||
+                   uri.startsWith("/api/reviews") ||
+                   uri.equals("/api/rooms/available");
+        }
+        if (method.equals("POST")) {
+            return uri.startsWith("/api/reservations");
+        }
+
+        return false;
+    }
 
 }

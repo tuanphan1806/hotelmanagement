@@ -3,6 +3,7 @@ package com.hotel.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -54,6 +55,15 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     http.csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(request -> request
             .requestMatchers("/auth/**").permitAll()
+
+            .requestMatchers(HttpMethod.GET, "/api/room-types/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/facilities/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/galleries/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/rooms/available").permitAll()
+
+            .requestMatchers(HttpMethod.PATCH,"/api/reservations").permitAll()
+
             .anyRequest().authenticated())
         .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
         .authenticationProvider(authenticationProvider())

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 
 @RestController
@@ -36,7 +37,7 @@ public class AuthenticationController {
 
     @Operation(summary = "Refresh token" ,description="Get new accessToken and refreshToken")
     @PostMapping("/refresh-token")
-    public TokenResponse getRefreshToken(@RequestBody String refreshToken) {
+    public TokenResponse getRefreshToken(@RequestHeader("Authorization") String refreshToken) {
         log.info("Refresh token request");
         
         // return TokenResponse.builder().accessToken("dummy-new-accessToken").refreshToken("dummy-refreshToken").build();

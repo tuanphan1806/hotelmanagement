@@ -55,7 +55,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         log.info("Get RefreshToken");
         String token = refreshToken.substring(7);
         // 1. Extract username từ refresh token
-        String username = jwtService.extractUsername(refreshToken, TokenType.REFRESH_TOKEN);
+        String username = jwtService.extractUsername(token, TokenType.REFRESH_TOKEN);
 
         // 2. Load user
         var user = userRepository.findByUsername(username)
