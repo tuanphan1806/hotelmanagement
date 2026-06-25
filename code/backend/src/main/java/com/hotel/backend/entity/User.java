@@ -27,6 +27,9 @@ public class User extends AbstractEntity<Long> implements Serializable{
     @Column(nullable = false,unique = true)
     private String email;
 
+    private String verificationCode;
+    private boolean emailVerified = false;
+    
     @Column(nullable = true)
     private String password;
     @Column(nullable = false, unique = true)
@@ -41,7 +44,7 @@ public class User extends AbstractEntity<Long> implements Serializable{
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    private UserStatus status= UserStatus.ACTIVE;
+    private UserStatus status= UserStatus.PENDING_VERIFICATION;
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;

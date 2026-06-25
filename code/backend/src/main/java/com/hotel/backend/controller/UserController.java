@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -49,7 +51,9 @@ public class UserController {
         Map<String,Object>result=new LinkedHashMap<>();
         result.put("status", HttpStatus.CREATED.value());
         result.put("message","User created successfully");
+
         result.put("data",userService.save(request));
+        
         return new ResponseEntity<>(result,HttpStatus.CREATED);
     }
 
@@ -121,6 +125,20 @@ public class UserController {
         result.put("message","Get user by id successfully");
         result.put("data",pageResponse);
         return result;
+    }
+
+    @GetMapping("/confirm-email")
+    public void confirmEmail(@RequestParam String secretCode ,HttpServletResponse response) throws IOException{
+        log.info("Confirm Email: {}", secretCode);
+        try {
+            //TODO check or compare secretCode
+            userService.verifyEmail(secretCode);
+
+        } catch (Exception e) {
+            log.error("Confirm Email failed: {}", e.getMessage());
+        } finally{
+            response.sendRedirect("https://www.facebook.com");
+        }
     }
 
 }

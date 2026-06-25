@@ -1,5 +1,6 @@
 package com.hotel.backend.service.Impl;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +11,7 @@ import com.hotel.backend.dto.request.UserPasswordRequest;
 import com.hotel.backend.dto.request.UserUpdateRequest;
 import com.hotel.backend.dto.response.UserPageResponse;
 import com.hotel.backend.dto.response.UserResponse;
+import com.hotel.backend.service.EmailService;
 import com.hotel.backend.service.UserService;
 import com.hotel.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
     @Override
     public UserPageResponse findAll(String keyword,String sort, int page,int size) {
         
@@ -91,17 +95,6 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-    @Override
-    public UserResponse findByUsername(String username) {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public UserResponse findByEmail(String email) {
-        // TODO
-        return null;
-    }
 
     @Override
     @Transactional(rollbackFor=Exception.class)
@@ -129,8 +122,16 @@ public class UserServiceImpl implements UserService {
            .build();
            // role & status tự nhận default từ @Builder.Default
 
-    userRepository.save(user);
-    return user.getId();
+        userRepository.save(user);
+
+        //send email 
+
+        try {
+            emailService.emailVerification(req.getEmail(), req.getFullName());
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
+        return user.getId();
     }
 
     @Override
@@ -199,4 +200,20 @@ public class UserServiceImpl implements UserService {
         response.setUsers(userList);
         return response;
     }
+    
+
+    public void verifyEmail(String secretCode) {
+    User user = userRepository.findByVerificationCode(secretCode)
+            .orElseThrow(() -> new RuntimeException("Invalid or expired verification code"));
+
+    if (user.isEmailVerified()) {
+        throw new RuntimeException("Email already verified");
+    }
+
+    user.setEmailVerified(true);
+    user.setVerificationCode(null); // xóa code sau khi dùng
+    user.setStatus(UserStatus.ACTIVE);
+    userRepository.save(user);
+    log.info("Email verified for user: {}", user.getEmail());
+}
 }
