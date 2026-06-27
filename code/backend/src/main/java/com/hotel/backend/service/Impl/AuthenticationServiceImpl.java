@@ -14,11 +14,15 @@ import org.springframework.stereotype.Service;
 import com.hotel.backend.constant.TokenType;
 import com.hotel.backend.dto.request.SignInRequest;
 import com.hotel.backend.dto.response.TokenResponse;
+import com.hotel.backend.entity.InvalidatedToken;
+import com.hotel.backend.exception.InvalidDataException;
+import com.hotel.backend.repository.InvalidatedTokenRepository;
 import com.hotel.backend.repository.UserRepository;
 import com.hotel.backend.service.AuthenticationService;
 import com.hotel.backend.service.JwtService;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -67,6 +71,11 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
     public TokenResponse getRefreshToken(String refreshToken) {
         log.info("Get RefreshToken");
+
+        if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
+    throw new InvalidDataException("Invalid refresh token format");
+}
+
         String token = refreshToken.substring(7);
         // 1. Extract username từ refresh token
         String username = jwtService.extractUsername(token, TokenType.REFRESH_TOKEN);
@@ -85,5 +94,32 @@ public class AuthenticationServiceImpl implements AuthenticationService{
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .build();
+    }
+
+
+    private final InvalidatedTokenRepository invalidatedTokenRepository;
+
+    @Override
+    public void logout(String accessToken) {
+        log.info("Logout request");
+
+        String token = accessToken.substring(7).trim();
+
+        // 1. Extract thông tin từ token
+        String jti = jwtService.extractJti(token, TokenType.ACCESS_TOKEN);
+        Date expiryTime = jwtService.extractExpiration(token, TokenType.ACCESS_TOKEN);
+        
+        if (invalidatedTokenRepository.existsByToken(jti)) {
+            throw new InvalidDataException("Token đã bị vô hiệu hóa");
+        }
+        // 2. Lưu vào blacklist
+        invalidatedTokenRepository.save(
+            InvalidatedToken.builder()
+                .token(jti)
+                .expiryTime(expiryTime)
+                .build()
+        );
+
+        log.info("Token invalidated: {}", jti);
     }
 }

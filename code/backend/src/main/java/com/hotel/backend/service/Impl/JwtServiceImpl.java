@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -77,6 +78,7 @@ public class JwtServiceImpl implements JwtService{
     private String generateToken(Map<String, Object> claims, String username) {
         log.info("Generate AccessToken for user {} with claims {}", username, claims);
         return Jwts.builder()
+                .id(UUID.randomUUID().toString()) 
                 .claims(claims)
                 .subject(username)
                 .issuedAt(new Date())
@@ -107,5 +109,13 @@ public class JwtServiceImpl implements JwtService{
         }
     }
 
+
+    public String extractJti(String token, TokenType type) {
+        return extractClaims(type, token, Claims::getId);
+    }
+
+    public Date extractExpiration(String token, TokenType type) {
+        return extractClaims(type, token, Claims::getExpiration);
+    }
     
 }

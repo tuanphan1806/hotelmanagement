@@ -2,6 +2,8 @@ package com.hotel.backend.dto.request;
 
 import java.io.Serializable;
 
+import com.hotel.backend.constant.UserType;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -22,6 +24,7 @@ public class UserUpdateRequest implements Serializable{
     @NotBlank
     private String email;
 
+    private UserType type;    
     // @NotBlank
     // private String password;
 

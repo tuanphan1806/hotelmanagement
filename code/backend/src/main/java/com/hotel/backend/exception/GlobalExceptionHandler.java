@@ -176,21 +176,7 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
-    // ── 500 Internal Server Error — fallback ──────────────────────────────────
-
-        @ExceptionHandler(Exception.class)
-        public ResponseEntity<ErrorResponse> handleGeneral(
-                Exception ex, HttpServletRequest request) {     
-                log.error("Unhandled exception at {}: {}", request.getRequestURI(), ex.getMessage(), ex);   
-                return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ErrorResponse.builder()
-                            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .error("Internal Server Error")
-                            .message("Đã có lỗi xảy ra, vui lòng thử lại sau")
-                            .path(request.getRequestURI())
-                            .build());
-        }
+    
 
         @ExceptionHandler(AccessDeniedException.class)
         public ResponseEntity<ErrorResponse> handleAccessDenied(
@@ -233,4 +219,40 @@ public class GlobalExceptionHandler {
                 .build());
         }
         
+        @ExceptionHandler(InvalidDataException.class)
+        public ResponseEntity<ErrorResponse> handleInvalidData(
+                InvalidDataException ex, HttpServletRequest request) {
+
+            log.warn("InvalidDataException: {}", ex.getMessage());
+
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.builder()
+                    .status(401)
+                    .error("Unauthorized")
+                    .message(ex.getMessage())
+                    .path(request.getRequestURI())
+                    .build());
+        }
+
+
+
+
+
+
+        // ── 500 Internal Server Error — fallback ──────────────────────────────────
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponse> handleGeneral(
+                Exception ex, HttpServletRequest request) {     
+                log.error("Unhandled exception at {}: {}", request.getRequestURI(), ex.getMessage(), ex);   
+                return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ErrorResponse.builder()
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .error("Internal Server Error")
+                            .message("Đã có lỗi xảy ra, vui lòng thử lại sau")
+                            .path(request.getRequestURI())
+                            .build());
+        }
 }

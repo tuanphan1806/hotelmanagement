@@ -62,8 +62,10 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/rooms/available").permitAll()
 
+
             .requestMatchers(HttpMethod.PATCH,"/api/reservations").permitAll()
 
+            .requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
             .anyRequest().authenticated())
         .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
         .authenticationProvider(authenticationProvider())

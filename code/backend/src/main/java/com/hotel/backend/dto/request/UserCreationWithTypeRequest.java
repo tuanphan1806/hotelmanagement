@@ -1,16 +1,15 @@
 package com.hotel.backend.dto.request;
 
-
 import lombok.Getter;
 
 import java.io.Serializable;
 
+import com.hotel.backend.constant.UserType;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-
 @Getter
-public class UserCreationRequest implements Serializable{
-
+public class UserCreationWithTypeRequest implements Serializable{
     @NotBlank
     private String fullName;
 
@@ -21,6 +20,7 @@ public class UserCreationRequest implements Serializable{
     @NotBlank
     private String email;
 
+    private UserType type;
 
     @NotBlank
     private String phone;

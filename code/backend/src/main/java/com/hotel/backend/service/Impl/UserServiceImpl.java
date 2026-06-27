@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import com.hotel.backend.constant.UserStatus;
 import com.hotel.backend.dto.request.UserCreationRequest;
+import com.hotel.backend.dto.request.UserCreationWithTypeRequest;
 import com.hotel.backend.dto.request.UserPasswordRequest;
 import com.hotel.backend.dto.request.UserUpdateRequest;
 import com.hotel.backend.dto.response.UserPageResponse;
@@ -122,7 +123,6 @@ public class UserServiceImpl implements UserService {
            .imageUrl(req.getImageUrl()) 
             .password(passwordEncoder.encode(req.getPassword()))
            .build();
-           // role & status tự nhận default từ @Builder.Default
 
         userRepository.save(user);
 
@@ -138,6 +138,46 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor=Exception.class)
+    public Long createUserWithType(UserCreationWithTypeRequest req) {
+        log.info("Saving user", req.getUsername());
+
+        if (userRepository.existsByUsername(req.getUsername())) {
+            throw new DuplicateResourceException("User", "username", req.getUsername());
+        }
+    
+        // Check duplicate email (nếu có)
+        if (userRepository.existsByEmail(req.getEmail())) {
+            throw new DuplicateResourceException("User", "email", req.getEmail());
+        }
+        if (userRepository.existsByPhone(req.getPhone())) {
+            throw new DuplicateResourceException("User", "phone", req.getPhone());
+        }
+        User user = User.builder()
+           .fullName(req.getFullName())
+           .username(req.getUsername())
+           .email(req.getEmail())
+           .type(req.getType())
+           .phone(req.getPhone())
+           .address(req.getAddress())
+           .imageUrl(req.getImageUrl()) 
+            .password(passwordEncoder.encode(req.getPassword()))
+           .build();
+
+        userRepository.save(user);
+        log.info("User create with type {} successfully",user.getType());
+        //send email 
+
+        try {
+            emailService.emailVerification(req.getEmail(), req.getFullName());
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
+        return user.getId();
+    }
+
+
+    @Override
+    @Transactional(rollbackFor=Exception.class)
     public void update(UserUpdateRequest req,Long id) {
         //get user by id
         User user = getUserById(id);
@@ -145,6 +185,7 @@ public class UserServiceImpl implements UserService {
         user.setFullName(req.getFullName());
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
+        user.setType(req.getType());
         user.setPhone(req.getPhone());
         user.setAddress(req.getAddress());
         if (req.getImageUrl() != null) {
@@ -152,7 +193,7 @@ public class UserServiceImpl implements UserService {
         }
         //save to db
         userRepository.save(user);
-
+        log.info("Update User successfully");
     }
 
     @Override
