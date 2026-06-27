@@ -2,6 +2,8 @@ package com.hotel.backend.service.Impl;
 
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -15,6 +17,10 @@ import com.hotel.backend.dto.response.TokenResponse;
 import com.hotel.backend.repository.UserRepository;
 import com.hotel.backend.service.AuthenticationService;
 import com.hotel.backend.service.JwtService;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.security.access.AccessDeniedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,19 +37,27 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
     public TokenResponse getAccessToken(SignInRequest request){
         log.info("Get AccessToken");
+
+        List<String> authorities= new ArrayList<>();
+
         // 1. Xác thực username/password qua AuthenticationManager
         // Nếu sai → throw AuthenticationException (BadCredentials, DisabledException, ...)
         try {
-            Authentication authentication= authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-            SecurityContextHolder.getContext().setAuthentication(authentication);            
+            Authentication authenticate= authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+            authenticate.getAuthorities().forEach(authority->authorities.add(authority.getAuthority()));
+
+            SecurityContextHolder.getContext().setAuthentication(authenticate);            
+        } catch (BadCredentialsException e) {
+            throw e;
         } catch (AuthenticationException e) {
             log.info("Login failed, message: {}",e.getMessage());
-            throw new AccessDeniedException(e.getMessage());
+            throw new InternalAuthenticationServiceException(e.getMessage());
         }
 
-        var user =userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new UsernameNotFoundException("User not found"));;
-        String accessToken=jwtService.generateAccessToken(user.getId(), request.getUsername(), user.getAuthorities());
-        String refreshToken=jwtService.generateRefreshToken(user.getId(), request.getUsername(), user.getAuthorities());
+        
+        String accessToken=jwtService.generateAccessToken( request.getUsername(), authorities);
+        String refreshToken=jwtService.generateRefreshToken( request.getUsername(), authorities);
+
         return TokenResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -60,10 +74,12 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         // 2. Load user
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        List<String> authorities=new ArrayList<>();
+        user.getAuthorities().forEach(authority->authorities.add(authority.getAuthority()));
 
         // 3. Generate token mới
-        String newAccessToken = jwtService.generateAccessToken(user.getId(), username, user.getAuthorities());
-        String newRefreshToken = jwtService.generateRefreshToken(user.getId(), username, user.getAuthorities());
+        String newAccessToken = jwtService.generateAccessToken( username, authorities);
+        String newRefreshToken = jwtService.generateRefreshToken( username, authorities);
 
         return TokenResponse.builder()
                 .accessToken(newAccessToken)

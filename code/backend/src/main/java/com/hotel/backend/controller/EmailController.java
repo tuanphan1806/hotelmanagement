@@ -10,10 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j(topic = "EMAIL-CONTROLLER")
 public class EmailController {

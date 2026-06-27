@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .address(user.getAddress())
-                .role(user.getRole())
+                .type(user.getType())
                 .status(user.getStatus())
                 .imageUrl(user.getImageUrl())
                 .build();
@@ -189,7 +189,7 @@ public class UserServiceImpl implements UserService {
                 .email(entity.getEmail())
                 .phone(entity.getPhone())
                 .address(entity.getAddress())
-                .role(entity.getRole())
+                .type((entity.getType()))
                 .status(entity.getStatus())
                 .imageUrl(entity.getImageUrl())
                 .build()

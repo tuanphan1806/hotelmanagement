@@ -23,7 +23,7 @@ public class UserResponse implements Serializable{
     private String email;
     private String phone;
     private String address;
-    private Role role ;
+    private UserType type ;
     private UserStatus status ;
     private String imageUrl;
 }

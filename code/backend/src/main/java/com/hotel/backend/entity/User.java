@@ -3,16 +3,20 @@ package com.hotel.backend.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hotel.backend.constant.Role;
 import com.hotel.backend.constant.UserStatus;
+import com.hotel.backend.constant.UserType;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
@@ -48,7 +52,7 @@ public class User extends AbstractEntity<Long> implements UserDetails,Serializab
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    private Role role=Role.CUSTOMER;
+    private UserType type= UserType.CUSTOMER; // metadata only — không dùng cho @PreAuthorize
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -63,7 +67,12 @@ public class User extends AbstractEntity<Long> implements UserDetails,Serializab
 
     @Override 
     public Collection<? extends GrantedAuthority> getAuthorities(){
-        return List.of();
+        //lay role,role name, add role name
+        // return groups.stream()
+        // .flatMap(g -> g.getRoles().stream())
+        // .map(r -> new SimpleGrantedAuthority(r.getName())) // "ADMIN,STAFF,CUSTOMER"
+        // .collect(Collectors.toSet());
+        return Set.of(new SimpleGrantedAuthority("ROLE_" + type.name()));
     }
 
     @Override
@@ -80,5 +89,13 @@ public class User extends AbstractEntity<Long> implements UserDetails,Serializab
     public boolean isEnabled(){
         return UserStatus.ACTIVE.equals(status);
     }
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "group_has_user",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<Group> groups = new HashSet<>();
 
 }
