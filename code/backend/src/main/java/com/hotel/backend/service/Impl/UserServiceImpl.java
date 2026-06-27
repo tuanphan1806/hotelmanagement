@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor=Exception.class)
     public Long createUserWithType(UserCreationWithTypeRequest req) {
-        log.info("Saving user", req.getUsername());
+        log.info("Saving user {} with type {}", req.getUsername(),req.getType());
 
         if (userRepository.existsByUsername(req.getUsername())) {
             throw new DuplicateResourceException("User", "username", req.getUsername());
