@@ -89,6 +89,7 @@ public class JwtServiceImpl implements JwtService{
     private String generateRefershToken(Map<String, Object> claims, String username) {
         log.info("Generate RefershToken for user {} with claims {}", username, claims);
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .claims(claims)
                 .subject(username)
                 .issuedAt(new Date())

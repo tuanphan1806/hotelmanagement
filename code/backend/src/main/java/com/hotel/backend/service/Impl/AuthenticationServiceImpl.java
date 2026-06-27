@@ -73,12 +73,18 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         log.info("Get RefreshToken");
 
         if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
-    throw new InvalidDataException("Invalid refresh token format");
-}
+            throw new InvalidDataException("Invalid refresh token format");
+        }
 
         String token = refreshToken.substring(7);
         // 1. Extract username từ refresh token
         String username = jwtService.extractUsername(token, TokenType.REFRESH_TOKEN);
+
+        //  Check blacklist
+        String rJti = jwtService.extractJti(token, TokenType.REFRESH_TOKEN);
+        if (invalidatedTokenRepository.existsByToken(rJti)) {
+            throw new InvalidDataException("Refresh token đã bị vô hiệu hóa, vui lòng đăng nhập lại");
+        }
 
         // 2. Load user
         var user = userRepository.findByUsername(username)
@@ -100,7 +106,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
     private final InvalidatedTokenRepository invalidatedTokenRepository;
 
     @Override
-    public void logout(String accessToken) {
+    public void logout(String accessToken, String refreshToken) {
         log.info("Logout request");
 
         String token = accessToken.substring(7).trim();
@@ -120,6 +126,15 @@ public class AuthenticationServiceImpl implements AuthenticationService{
                 .build()
         );
 
-        log.info("Token invalidated: {}", jti);
-    }
+        String rToken = refreshToken.substring(7).trim();
+        String rJti = jwtService.extractJti(rToken, TokenType.REFRESH_TOKEN);
+        Date rExpiryTime = jwtService.extractExpiration(rToken, TokenType.REFRESH_TOKEN);
+
+        invalidatedTokenRepository.save(InvalidatedToken.builder()
+                .token(rJti)
+                .expiryTime(rExpiryTime)
+                .build());
+
+        log.info("Access + Refresh token invalidated for jti: {}", jti);
+        }
 }

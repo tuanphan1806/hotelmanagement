@@ -60,9 +60,9 @@ public class AuthenticationController {
 
     @Operation(summary = "Logout", description = "Invalidate access token")
     @PostMapping("/logout")
-    public ResponseEntity<Object> logout(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<Object> logout(@RequestHeader("Authorization") String accessToken, @RequestHeader("Refresh-Token") String refreshToken) {
         log.info("Logout request");
-        authenticationService.logout(accessToken);
+        authenticationService.logout(accessToken,refreshToken);
         Map<String,Object>result=new LinkedHashMap<>();
         result.put("status", HttpStatus.OK.value());
         result.put("message","Logout successfully");
