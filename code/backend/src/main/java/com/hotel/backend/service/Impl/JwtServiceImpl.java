@@ -4,7 +4,9 @@ import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -37,18 +39,18 @@ public class JwtServiceImpl implements JwtService{
     @Value("${jwt.refreshKey}")
     private String refreshKey;
 
-    public String generateAccessToken(Long userId,String username, Collection<? extends GrantedAuthority> authorities){
-        log.info("Generate AccessToken for user {} with authorities {}", userId,authorities);
+    public String generateAccessToken(String username, List<String> authorities){
+        log.info("Generate AccessToken for username {} with authorities {}", username,authorities);
         Map<String,Object> claims=new HashMap<>();
-        claims.put("userId", userId);
+
         claims.put("role", authorities);
 
         return generateToken(claims, username);
     }
-    public String generateRefreshToken(Long userId,String username, Collection<? extends GrantedAuthority> authorities){
-        log.info("Generate RefreshToken for user {} with authorities {}", userId,authorities);
+    public String generateRefreshToken(String username, List<String> authorities){
+        log.info("Generate RefreshToken for username {} with authorities {}", username,authorities);
         Map<String,Object> claims=new HashMap<>();
-        claims.put("userId", userId);
+
         claims.put("role", authorities);
 
         return generateRefershToken(claims, username);
@@ -76,6 +78,7 @@ public class JwtServiceImpl implements JwtService{
     private String generateToken(Map<String, Object> claims, String username) {
         log.info("Generate AccessToken for user {} with claims {}", username, claims);
         return Jwts.builder()
+                .id(UUID.randomUUID().toString()) 
                 .claims(claims)
                 .subject(username)
                 .issuedAt(new Date())
@@ -86,6 +89,7 @@ public class JwtServiceImpl implements JwtService{
     private String generateRefershToken(Map<String, Object> claims, String username) {
         log.info("Generate RefershToken for user {} with claims {}", username, claims);
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .claims(claims)
                 .subject(username)
                 .issuedAt(new Date())
@@ -106,5 +110,13 @@ public class JwtServiceImpl implements JwtService{
         }
     }
 
+
+    public String extractJti(String token, TokenType type) {
+        return extractClaims(type, token, Claims::getId);
+    }
+
+    public Date extractExpiration(String token, TokenType type) {
+        return extractClaims(type, token, Claims::getExpiration);
+    }
     
 }

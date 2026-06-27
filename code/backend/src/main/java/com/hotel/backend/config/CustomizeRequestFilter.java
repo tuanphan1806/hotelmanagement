@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.hotel.backend.constant.TokenType;
+import com.hotel.backend.repository.InvalidatedTokenRepository;
 import com.hotel.backend.service.JwtService;
 import com.hotel.backend.service.UserServiceDetail;
 
@@ -29,6 +30,7 @@ import com.hotel.backend.service.UserServiceDetail;
 public class CustomizeRequestFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserServiceDetail userServiceDetail;
+    private final InvalidatedTokenRepository invalidatedTokenRepository;
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -53,6 +55,16 @@ public class CustomizeRequestFilter extends OncePerRequestFilter {
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 response.getWriter().write(e.getMessage());
+                return;
+            }
+
+            String jti = jwtService.extractJti(authHeader, TokenType.ACCESS_TOKEN);
+            if (invalidatedTokenRepository.existsByToken(jti)) {
+                log.error("Token has been invalidated");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"message\": \"Token has been invalidated\"}");
                 return;
             }
 

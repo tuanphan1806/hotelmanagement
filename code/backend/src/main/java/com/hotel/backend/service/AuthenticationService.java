@@ -6,4 +6,5 @@ import com.hotel.backend.dto.response.TokenResponse;
 public interface AuthenticationService {
     TokenResponse getAccessToken(SignInRequest request);
     TokenResponse getRefreshToken(String request);
+    void logout(String accessToken, String refreshToken);
 }

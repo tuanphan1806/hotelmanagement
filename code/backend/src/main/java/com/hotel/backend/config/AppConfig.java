@@ -63,22 +63,24 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/rooms/available").permitAll()
 
+
             .requestMatchers(HttpMethod.PATCH,"/api/reservations").permitAll()
 
+            .requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
             .anyRequest().authenticated())
         .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(authenticationEntryPoint)
-            .accessDeniedHandler((req, res, e) -> {
-                res.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                res.setContentType("application/json");
-                res.setCharacterEncoding("UTF-8");
-                res.getWriter().write("""
-                    {"status": 403, "error": "Forbidden", "message": "%s"}
-                    """.formatted(e.getMessage()));
-            })
+            // .accessDeniedHandler((req, res, e) -> {
+            //     res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            //     res.setContentType("application/json");
+            //     res.setCharacterEncoding("UTF-8");
+            //     res.getWriter().write("""
+            //         {"status": 403, "error": "Forbidden", "message": "%s"}
+            //         """.formatted(e.getMessage()));
+            // })
         );
     return http.build();
 }

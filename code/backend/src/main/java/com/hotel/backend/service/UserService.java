@@ -2,6 +2,7 @@ package com.hotel.backend.service;
 
 
 import com.hotel.backend.dto.request.UserCreationRequest;
+import com.hotel.backend.dto.request.UserCreationWithTypeRequest;
 import com.hotel.backend.dto.request.UserPasswordRequest;
 import com.hotel.backend.dto.request.UserUpdateRequest;
 import com.hotel.backend.dto.response.UserPageResponse;
@@ -15,4 +16,6 @@ public interface UserService {
     void changePassword(UserPasswordRequest req);
     void delete(Long id);
     void verifyEmail(String secretCode);
+
+    Long createUserWithType(UserCreationWithTypeRequest req);
 }

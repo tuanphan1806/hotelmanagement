@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.hotel.backend.dto.request.UserCreationRequest;
+import com.hotel.backend.dto.request.UserCreationWithTypeRequest;
 import com.hotel.backend.dto.request.UserPasswordRequest;
 import com.hotel.backend.dto.request.UserUpdateRequest;
 import com.hotel.backend.dto.response.UserPageResponse;
@@ -47,12 +49,13 @@ public class UserController {
 
     @Operation(summary = "Create User", description = "API add new user to database")
     @PostMapping("")
-    public ResponseEntity<Object> CreateUser(@RequestBody @Valid UserCreationRequest request){
+    public ResponseEntity<Object> CreateUser(@RequestBody @Valid UserCreationWithTypeRequest request){
         Map<String,Object>result=new LinkedHashMap<>();
         result.put("status", HttpStatus.CREATED.value());
+
         result.put("message","User created successfully");
 
-        result.put("data",userService.save(request));
+        result.put("data",userService.createUserWithType(request));
         
         return new ResponseEntity<>(result,HttpStatus.CREATED);
     }
@@ -111,7 +114,7 @@ public class UserController {
         return result;
     }
 
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @Operation(summary = "Get list User", description = "API get list")
     @GetMapping("/list")
     public Map<String,Object> getList(@RequestParam(required = false) String keyword,
@@ -127,18 +130,6 @@ public class UserController {
         return result;
     }
 
-    @GetMapping("/confirm-email")
-    public void confirmEmail(@RequestParam String secretCode ,HttpServletResponse response) throws IOException{
-        log.info("Confirm Email: {}", secretCode);
-        try {
-            //TODO check or compare secretCode
-            userService.verifyEmail(secretCode);
-
-        } catch (Exception e) {
-            log.error("Confirm Email failed: {}", e.getMessage());
-        } finally{
-            response.sendRedirect("https://www.facebook.com");
-        }
-    }
+    
 
 }

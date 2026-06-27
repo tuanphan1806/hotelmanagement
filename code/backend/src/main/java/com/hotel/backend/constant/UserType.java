@@ -1,6 +1,6 @@
 package com.hotel.backend.constant;
 
-public enum Role {
+public enum UserType {
     ADMIN,
     STAFF,
     CUSTOMER
