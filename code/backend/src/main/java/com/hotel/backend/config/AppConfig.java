@@ -54,8 +54,9 @@ public class AppConfig {
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(request -> request
+       
             .requestMatchers("/auth/**").permitAll()
-
+            .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/room-types/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/facilities/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/galleries/**").permitAll()
