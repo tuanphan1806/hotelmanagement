@@ -3,9 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.io.Serializable;
+
 @Entity
 @Table(name = "invalidated_tokens")
 @Getter
@@ -19,4 +17,8 @@ public class InvalidatedToken {
     private String token; // lưu jti hoặc token hash
 
     private Date expiryTime; // để scheduled job dọn dẹp
+
+    @Column(name = "reason", length = 50)
+    @Builder.Default
+    private String reason = "UNKNOWN"; // "LOGOUT", "SESSION_REPLACED"
 }

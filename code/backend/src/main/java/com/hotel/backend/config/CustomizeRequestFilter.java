@@ -20,9 +20,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.hotel.backend.constant.TokenType;
+import com.hotel.backend.entity.InvalidatedToken;
 import com.hotel.backend.repository.InvalidatedTokenRepository;
+import com.hotel.backend.repository.UserRepository;
+import com.hotel.backend.repository.UserTokenRepository;
 import com.hotel.backend.service.JwtService;
 import com.hotel.backend.service.UserServiceDetail;
+
+import io.jsonwebtoken.ExpiredJwtException;
 
 @Component
 @Slf4j(topic = "CUSTOMIZE-REQUEST-FILTER")
@@ -31,6 +36,8 @@ public class CustomizeRequestFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserServiceDetail userServiceDetail;
     private final InvalidatedTokenRepository invalidatedTokenRepository;
+    private final UserRepository userRepository;
+private final UserTokenRepository userTokenRepository;
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -49,22 +56,45 @@ public class CustomizeRequestFilter extends OncePerRequestFilter {
             try {
                 username = jwtService.extractUsername(authHeader, TokenType.ACCESS_TOKEN);
                 log.info("username: {}",username);
-            } catch (AccessDeniedException e) {
-                log.error("Access denied, message: {}",e.getMessage());
+            } catch (ExpiredJwtException e) {
+                // Access token hết hạn → báo FE dùng refresh token
+                log.warn("Access token expired for request: {}", request.getRequestURI());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
-                response.getWriter().write(e.getMessage());
+                response.getWriter().write("{\"status\": 401, \"message\": \"Access token expired\"}");
+                return;
+            } catch (AccessDeniedException e) {
+                log.error("Access denied: {}", e.getMessage());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"status\": 401, \"message\": \"Invalid token\"}");
+                return;
+            } catch (Exception e) {
+                log.error("Token error: {}", e.getMessage());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"status\": 401, \"message\": \"Token error\"}");
                 return;
             }
 
             String jti = jwtService.extractJti(authHeader, TokenType.ACCESS_TOKEN);
-            if (invalidatedTokenRepository.existsByToken(jti)) {
-                log.error("Token has been invalidated");
+
+            InvalidatedToken invalidated = invalidatedTokenRepository.findByToken(jti).orElse(null);
+            if (invalidated != null) {
+                boolean isSessionReplaced = "SESSION_REPLACED".equals(invalidated.getReason());
+            
+                String message = isSessionReplaced
+                        ? "{\"status\": 401, \"message\": \"Tài khoản đã đăng nhập ở nơi khác\"}"
+                        : "{\"status\": 401, \"message\": \"Token đã bị vô hiệu hóa\"}";
+            
+                log.warn("Token blocked - reason={}, username={}", invalidated.getReason(), username);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
-                response.getWriter().write("{\"message\": \"Token has been invalidated\"}");
+                response.getWriter().write(message);
                 return;
             }
 
