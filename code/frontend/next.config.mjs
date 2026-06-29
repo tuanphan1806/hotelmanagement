@@ -8,3 +8,5 @@ const nextConfig = {
 };
 
 export default nextConfig;
+// Force Next.js config reload to clear parallel page routing cache
+

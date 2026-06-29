@@ -37,51 +37,43 @@ export default function MainLayout({
       </main>
 
       {/* Footer */}
-      <footer className="bg-primary-navy text-white mt-auto pt-20 pb-12 px-16 relative">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 border-l-[30px] border-l-transparent border-r-[30px] border-r-transparent border-b-[30px] border-b-primary-navy"></div>
-        
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10">
-          <div className="max-w-xs">
-            <div className="mb-6 flex flex-col">
+      <footer className="bg-primary-navy text-white mt-auto pt-16 pb-12 px-16 relative border-t border-white/5">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+          {/* Logo & Description */}
+          <div className="max-w-xs space-y-4">
+            <div className="flex flex-col">
               <span className="font-serif text-3xl font-bold tracking-widest leading-tight">LUXURY</span>
               <span className="text-[0.6rem] tracking-[0.4em] font-bold">HOTELS</span>
             </div>
-            <p className="text-xs text-white/80 leading-relaxed font-light">
-              497 Evergreen Rd. Roseville, CA 95673<br/>
-              +44 345 678 903<br/>
-              luxury_hotels@gmail.com
+            <p className="text-xs text-white/60 leading-relaxed font-light">
+              Kiến tạo trải nghiệm nghỉ dưỡng sang trọng giữa lòng di sản.
             </p>
           </div>
           
-          <div className="flex flex-col gap-4 text-sm font-light text-white/90">
-            <Link href="#" className="hover:text-accent-gold transition-colors">About Us</Link>
-            <Link href="#" className="hover:text-accent-gold transition-colors">Contact</Link>
-            <Link href="#" className="hover:text-accent-gold transition-colors">Terms & Conditions</Link>
+          {/* Column 1: Quick Links */}
+          <div className="flex flex-col gap-4">
+            <h4 className="text-xs font-bold tracking-widest text-white uppercase">QUICK LINKS</h4>
+            <div className="flex flex-col gap-2.5 text-xs font-light text-white/60">
+              <Link href="#" className="hover:text-accent-gold transition-colors">Privacy Policy</Link>
+              <Link href="#" className="hover:text-accent-gold transition-colors">Terms of Service</Link>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-4 text-sm font-light text-white/90">
-            <Link href="#" className="flex items-center gap-3 hover:text-accent-gold transition-colors">
-              <span className="font-bold text-lg w-4 text-center">f</span> Facebook
-            </Link>
-            <Link href="#" className="flex items-center gap-3 hover:text-accent-gold transition-colors">
-              <span className="font-bold text-lg w-4 text-center">t</span> Twitter
-            </Link>
-            <Link href="#" className="flex items-center gap-3 hover:text-accent-gold transition-colors">
-              <span className="font-bold text-lg w-4 text-center">i</span> Instagram
-            </Link>
+          {/* Column 2: Follow Us */}
+          <div className="flex flex-col gap-4">
+            <h4 className="text-xs font-bold tracking-widest text-white uppercase">FOLLOW US</h4>
+            <div className="flex flex-col gap-2.5 text-xs font-light text-white/60">
+              <Link href="#" className="hover:text-accent-gold transition-colors">Facebook</Link>
+              <Link href="#" className="hover:text-accent-gold transition-colors">Instagram</Link>
+              <Link href="#" className="hover:text-accent-gold transition-colors">LinkedIn</Link>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-5">
-            <span className="text-sm font-medium">Subscribe to our newsletter</span>
-            <div className="flex h-10">
-              <input 
-                type="email" 
-                placeholder="Email Address" 
-                className="bg-transparent border-2 border-accent-gold px-4 text-sm focus:outline-none focus:bg-white/5 rounded-l-sm w-48 transition-colors"
-              />
-              <button className="bg-accent-gold text-primary-navy px-6 text-sm font-bold rounded-r-sm hover:bg-yellow-500 transition-colors">
-                OK
-              </button>
+          {/* Column 3: Copyright */}
+          <div className="flex flex-col gap-4">
+            <h4 className="text-xs font-bold tracking-widest text-white uppercase">COPYRIGHT</h4>
+            <div className="text-xs font-light text-white/60 leading-relaxed max-w-[200px]">
+              © 2026 Luxury Hotels. All rights reserved.
             </div>
           </div>
         </div>

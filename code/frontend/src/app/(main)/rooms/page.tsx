@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { ROOMS_CONTENT } from "@/constants/content";
 import { apiClient } from "@/lib/api";
 
@@ -100,12 +101,15 @@ export default function RoomsPage() {
                 </h3>
               </div>
               <div className="bg-white py-6 px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-                <button className="flex items-center gap-4 font-bold text-text-light hover:text-accent-gold transition-colors text-lg tracking-wide group">
+                <Link 
+                  href={`/rooms/${room.id || room.title?.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="flex items-center gap-4 font-bold text-text-light hover:text-accent-gold transition-colors text-lg tracking-wide group"
+                >
                   <span className="w-10 h-10 rounded-full border-2 border-accent-gold text-accent-gold flex items-center justify-center text-3xl pb-1 group-hover:bg-accent-gold group-hover:text-white transition-colors">
                     +
                   </span>
                   VIEW ROOM DETAILS
-                </button>
+                </Link>
                 <button className="bg-accent-gold hover:bg-yellow-500 text-white font-bold py-4 px-10 rounded-sm transition-colors text-lg tracking-widest">
                   {price}
                 </button>

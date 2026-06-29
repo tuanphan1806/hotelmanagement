@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 export default function DashboardOverview() {
   // Sophisticated, muted editorial color palette data
@@ -12,6 +12,10 @@ export default function DashboardOverview() {
       change: "↗ 12.4%",
       isPositive: true,
       subText: "vs yesterday $4,287",
+      iconBgClass: "bg-[#FAF5EC]",
+      iconColorClass: "text-[#C5A86E]",
+      trendBgClass: "bg-[#E6F4EA] border-[#E6F4EA]/20",
+      trendColorClass: "text-[#137333]",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
           <line x1="12" y1="1" x2="12" y2="23" />
@@ -26,6 +30,10 @@ export default function DashboardOverview() {
       change: "↗ 5.2%",
       isPositive: true,
       subText: "10 of 12 rooms filled",
+      iconBgClass: "bg-[#E8F0FE]",
+      iconColorClass: "text-[#1A73E8]",
+      trendBgClass: "bg-[#E6F4EA] border-[#E6F4EA]/20",
+      trendColorClass: "text-[#137333]",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -40,6 +48,10 @@ export default function DashboardOverview() {
       change: "↘ 2.1%",
       isPositive: false,
       subText: "3 arriving today",
+      iconBgClass: "bg-[#E6F4EA]",
+      iconColorClass: "text-[#137333]",
+      trendBgClass: "bg-[#FCE8E6] border-[#FCE8E6]/20",
+      trendColorClass: "text-[#C5221F]",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -56,6 +68,10 @@ export default function DashboardOverview() {
       change: "↗ 8.7%",
       isPositive: true,
       subText: "Across all rooms",
+      iconBgClass: "bg-[#F3E8FF]",
+      iconColorClass: "text-[#A855F7]",
+      trendBgClass: "bg-[#E6F4EA] border-[#E6F4EA]/20",
+      trendColorClass: "text-[#137333]",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -67,13 +83,26 @@ export default function DashboardOverview() {
     }
   ];
 
-  // Refined, muted brand colors (Steel Blue, Muted Gold, Sage Green, Muted Rose)
+  // Refined, brand colors matching the screenshot
   const roomMix = [
-    { name: "Standard", percentage: 35, count: 7, color: "bg-[#4A607A]", strokeColor: "#4A607A" },
+    { name: "Standard", percentage: 35, count: 7, color: "bg-[#4285F4]", strokeColor: "#4285F4" },
     { name: "Deluxe", percentage: 30, count: 6, color: "bg-[#C5A86E]", strokeColor: "#C5A86E" },
-    { name: "Junior Suite", percentage: 20, count: 4, color: "bg-[#5C7C64]", strokeColor: "#5C7C64" },
-    { name: "Suite", percentage: 15, count: 3, color: "bg-[#A66E6E]", strokeColor: "#A66E6E" }
+    { name: "Junior Suite", percentage: 20, count: 4, color: "bg-[#34A853]", strokeColor: "#34A853" },
+    { name: "Suite", percentage: 15, count: 3, color: "bg-[#EA4335]", strokeColor: "#EA4335" }
   ];
+
+  const [userName, setUserName] = useState("Alexandre");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        const name = parsed.fullName || parsed.username || "Alexandre";
+        setUserName(name.split(" ")[0]);
+      } catch (e) {}
+    }
+  }, []);
 
   return (
     <div className="p-6 md:p-10 space-y-10 max-w-[1600px] mx-auto w-full">
@@ -81,7 +110,7 @@ export default function DashboardOverview() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[#1C1613]/5">
         <div>
           <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-[#1C1613] leading-tight">
-            Good morning, Alexandre
+            Good morning, {userName}
           </h1>
           <p className="text-xs text-[#766E65] mt-1.5 flex items-center gap-1.5 font-semibold tracking-wider uppercase">
             Saturday, 13 June 2026 <span className="text-[#1C1613]/15">•</span> Here's what's happening today
@@ -102,16 +131,12 @@ export default function DashboardOverview() {
             {/* Header Content */}
             <div className="flex items-center justify-between">
               {/* Elegant Gold icon with warm ivory container */}
-              <div className="p-2.5 rounded-lg bg-[#FAF5EC] text-[#C5A86E]">
+              <div className={`p-2.5 rounded-lg ${metric.iconBgClass} ${metric.iconColorClass}`}>
                 {metric.icon}
               </div>
               
               {/* Thin hairline Border Trend Indicator */}
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wider ${
-                metric.isPositive 
-                  ? "text-[#5C7C64] bg-[#5C7C64]/5 border border-[#5C7C64]/20" 
-                  : "text-[#A66E6E] bg-[#A66E6E]/5 border border-[#A66E6E]/20"
-              }`}>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wider border ${metric.trendBgClass} ${metric.trendColorClass}`}>
                 {metric.change}
               </span>
             </div>
@@ -243,7 +268,7 @@ export default function DashboardOverview() {
                   cy="50"
                   r="40"
                   fill="transparent"
-                  stroke="#4A607A"
+                  stroke="#4285F4"
                   strokeWidth="6"
                   strokeDasharray="87.96 251.32"
                   strokeDashoffset="0"
@@ -269,7 +294,7 @@ export default function DashboardOverview() {
                   cy="50"
                   r="40"
                   fill="transparent"
-                  stroke="#5C7C64"
+                  stroke="#34A853"
                   strokeWidth="6"
                   strokeDasharray="50.26 251.32"
                   strokeDashoffset="-163.36"
@@ -282,7 +307,7 @@ export default function DashboardOverview() {
                   cy="50"
                   r="40"
                   fill="transparent"
-                  stroke="#A66E6E"
+                  stroke="#EA4335"
                   strokeWidth="6"
                   strokeDasharray="37.7 251.32"
                   strokeDashoffset="-213.62"
@@ -307,7 +332,6 @@ export default function DashboardOverview() {
                   <span className="text-[#1C1613]">{item.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[#766E65] text-[10px] font-medium">{item.count} rooms</span>
                   <span className="font-bold text-[#1C1613] w-8 text-right">{item.percentage}%</span>
                 </div>
               </div>

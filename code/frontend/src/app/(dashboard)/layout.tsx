@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { deleteCookie } from "@/lib/cookie-helper";
 
 interface SidebarItemProps {
   href: string;
@@ -10,13 +11,14 @@ interface SidebarItemProps {
   label: string;
   badge?: string;
   active: boolean;
+  isCollapsed?: boolean;
 }
 
-const SidebarItem = ({ href, icon, label, badge, active }: SidebarItemProps) => {
+const SidebarItem = ({ href, icon, label, badge, active, isCollapsed }: SidebarItemProps) => {
   return (
     <Link
       href={href}
-      className={`group flex items-center justify-between px-4 py-3.5 rounded-lg transition-all duration-300 ${
+      className={`group flex items-center ${isCollapsed ? "justify-center" : "justify-between"} px-4 py-3.5 rounded-lg transition-all duration-300 relative ${
         active
           ? "bg-[#2A221E] text-[#C5A86E] border-l-4 border-[#C5A86E] pl-3"
           : "text-[#FAF9F6]/75 hover:bg-[#2A221E]/50 hover:text-[#FAF9F6] border-l-4 border-transparent"
@@ -26,12 +28,18 @@ const SidebarItem = ({ href, icon, label, badge, active }: SidebarItemProps) => 
         <span className={`w-5 h-5 flex items-center justify-center transition-transform group-hover:scale-110 duration-300 ${active ? "text-[#C5A86E]" : "text-[#FAF9F6]/60 group-hover:text-[#FAF9F6]"}`}>
           {icon}
         </span>
-        <span className="font-medium text-sm tracking-wide">{label}</span>
+        {!isCollapsed && <span className="font-medium text-sm tracking-wide transition-all duration-300">{label}</span>}
       </div>
       {badge && (
-        <span className="flex items-center justify-center text-xs font-bold w-5 h-5 rounded-full bg-[#C5A86E] text-[#1C1613]">
-          {badge}
-        </span>
+        isCollapsed ? (
+          <span className="absolute top-1.5 right-1.5 flex items-center justify-center text-[9px] font-bold w-4.5 h-4.5 rounded-full bg-[#C5A86E] text-[#1C1613]">
+            {badge}
+          </span>
+        ) : (
+          <span className="flex items-center justify-center text-xs font-bold w-5 h-5 rounded-full bg-[#C5A86E] text-[#1C1613]">
+            {badge}
+          </span>
+        )
       )}
     </Link>
   );
@@ -44,6 +52,28 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [user, setUser] = useState({ fullName: "Alexandre Martin", role: "General Manager", initials: "AM" });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        const name = parsed.fullName || parsed.username || "Alexandre Martin";
+        const role = parsed.role || "General Manager";
+        const initials = name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+        setUser({ fullName: name, role, initials });
+      } catch (e) {
+        console.error("Failed to parse user data from localStorage", e);
+      }
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    deleteCookie('token');
+    localStorage.removeItem('user');
+  };
 
   const navigationItems = [
     {
@@ -107,18 +137,20 @@ export default function DashboardLayout({
     },
   ];
 
-  const sidebarContent = (
+  const getSidebarContent = (collapsed: boolean) => (
     <div className="flex flex-col h-full bg-[#1C1613] text-[#FAF9F6]">
       {/* Brand Logo Header */}
-      <div className="p-6 flex items-center justify-between border-b border-[#faf9f6]/10">
+      <div className={`p-6 flex items-center ${collapsed ? "justify-center" : "justify-between"} border-b border-[#faf9f6]/10 h-20`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full border border-[#C5A86E] flex items-center justify-center bg-transparent">
+          <div className="w-10 h-10 rounded-full border border-[#C5A86E] flex items-center justify-center bg-transparent shrink-0">
             <span className="font-serif text-[#C5A86E] font-bold text-lg">L</span>
           </div>
-          <div className="flex flex-col">
-            <span className="font-serif text-base font-bold tracking-wider text-[#FAF9F6]">Lumière Palace</span>
-            <span className="text-[0.6rem] tracking-[0.25em] text-[#C5A86E] font-medium uppercase -mt-0.5">Hotel Management</span>
-          </div>
+          {!collapsed && (
+            <div className="flex flex-col min-w-0 transition-opacity duration-300">
+              <span className="font-serif text-base font-bold tracking-wider text-[#FAF9F6] whitespace-nowrap">Lumière Palace</span>
+              <span className="text-[0.6rem] tracking-[0.25em] text-[#C5A86E] font-medium uppercase -mt-0.5 whitespace-nowrap">Hotel Management</span>
+            </div>
+          )}
         </div>
         {/* Toggle mobile sidebar */}
         <button
@@ -142,6 +174,7 @@ export default function DashboardLayout({
             icon={item.icon}
             badge={item.badge}
             active={pathname === item.href}
+            isCollapsed={collapsed}
           />
         ))}
       </nav>
@@ -150,37 +183,40 @@ export default function DashboardLayout({
       <div className="px-4 py-4 border-t border-[#faf9f6]/10 space-y-1">
         <Link
           href="/dashboard/notifications"
-          className="flex items-center gap-3.5 px-4 py-3 text-[#FAF9F6]/75 hover:bg-[#2A221E]/50 hover:text-[#FAF9F6] rounded-lg transition-colors duration-200"
+          className={`flex items-center ${collapsed ? "justify-center" : "gap-3.5"} px-4 py-3 text-[#FAF9F6]/75 hover:bg-[#2A221E]/50 hover:text-[#FAF9F6] rounded-lg transition-colors duration-200`}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#FAF9F6]/60">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#FAF9F6]/60 shrink-0">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
-          <span className="font-medium text-sm">Notifications</span>
+          {!collapsed && <span className="font-medium text-sm">Notifications</span>}
         </Link>
         <Link
           href="/login"
-          className="flex items-center gap-3.5 px-4 py-3 text-[#E87A7A] hover:bg-red-500/10 rounded-lg transition-colors duration-200"
+          onClick={handleSignOut}
+          className={`flex items-center ${collapsed ? "justify-center" : "gap-3.5"} px-4 py-3 text-[#E87A7A] hover:bg-red-500/10 rounded-lg transition-colors duration-200`}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          <span className="font-medium text-sm">Sign Out</span>
+          {!collapsed && <span className="font-medium text-sm">Sign Out</span>}
         </Link>
       </div>
 
       {/* Profile Card */}
       <div className="p-4 border-t border-[#faf9f6]/10 bg-[#16110F]">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#C5A86E] text-[#1C1613] flex items-center justify-center font-serif font-bold text-sm shadow-sm transition-transform hover:scale-105 duration-300">
-            AM
+        <div className={`flex items-center ${collapsed ? "justify-center" : "gap-3"}`}>
+          <div className="w-10 h-10 rounded-full bg-[#C5A86E] text-[#1C1613] flex items-center justify-center font-serif font-bold text-sm shadow-sm transition-transform hover:scale-105 duration-300 shrink-0">
+            {user.initials}
           </div>
-          <div className="flex flex-col min-w-0">
-            <p className="text-sm font-semibold text-[#FAF9F6] truncate">Alexandre Martin</p>
-            <p className="text-xs text-[#766E65] font-medium truncate">General Manager</p>
-          </div>
+          {!collapsed && (
+            <div className="flex flex-col min-w-0">
+              <p className="text-sm font-semibold text-[#FAF9F6] truncate">{user.fullName}</p>
+              <p className="text-xs text-[#766E65] font-medium truncate">{user.role}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -196,9 +232,22 @@ export default function DashboardLayout({
         />
       )}
 
-      {/* Desktop Sidebar (Permanent) */}
-      <aside className="w-72 hidden md:block shrink-0 border-r border-[#1C1613]/5 z-30 h-screen sticky top-0">
-        {sidebarContent}
+      {/* Desktop Sidebar (Collapsible) */}
+      <aside className={`relative ${isCollapsed ? "w-20" : "w-72"} hidden md:block shrink-0 border-r border-[#1C1613]/5 z-30 h-screen sticky top-0 transition-all duration-300`}>
+        {getSidebarContent(isCollapsed)}
+        {/* Collapse Toggle Button */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3.5 top-[76px] z-50 bg-[#FAF9F6] border border-[#1C1613]/10 w-7 h-7 rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-white transition-transform hover:scale-105 duration-200"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="#766E65" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+            {isCollapsed ? (
+              <polyline points="9 18 15 12 9 6" />
+            ) : (
+              <polyline points="15 18 9 12 15 6" />
+            )}
+          </svg>
+        </button>
       </aside>
 
       {/* Mobile Sidebar (Drawer) */}
@@ -207,7 +256,7 @@ export default function DashboardLayout({
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {sidebarContent}
+        {getSidebarContent(false)}
       </aside>
 
       {/* Main Container */}
@@ -233,7 +282,7 @@ export default function DashboardLayout({
           </div>
 
           <div className="w-8 h-8 rounded-full bg-[#C5A86E] text-[#1C1613] flex items-center justify-center font-serif font-bold text-xs">
-            AM
+            {user.initials}
           </div>
         </header>
 
