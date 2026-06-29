@@ -1,6 +1,6 @@
-# Lumière Palace - Hotel Management Frontend ⚜
+# Luxury Hotel - Hotel Management Frontend ⚜
 
-Frontend của hệ thống Quản lý Khách sạn Cao cấp **Lumière Palace**. Dự án được xây dựng trên nền tảng **Next.js 15 (App Router)** kết hợp với **TypeScript**, **TailwindCSS** và hệ thống thiết kế premium (glassmorphic UI, custom animations).
+Frontend của hệ thống Quản lý Khách sạn Cao cấp **Luxury Hotel**. Dự án được xây dựng trên nền tảng **Next.js 15 (App Router)** kết hợp với **TypeScript**, **TailwindCSS** và hệ thống thiết kế premium (glassmorphic UI, custom animations).
 
 ---
 
