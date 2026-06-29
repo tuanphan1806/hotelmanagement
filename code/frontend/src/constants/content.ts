@@ -88,7 +88,7 @@ export const FACILITIES_CONTENT = {
 export const CONTACT_CONTENT = {
   hero: {
     title: 'Contact Us',
-    subtitle: 'Get in touch with our team for reservations, inquiries, or special requests',
+    subtitle: 'At Luxury Hotels, we take our customers seriously. Do you have any enquiries, compaints or requests, please forward it to our support desk and we will get back to you as soon as possible.',
     bg: 'https://images.unsplash.com/photo-1516321318423-f06f70259b0c?w=1200&h=600&fit=crop',
   },
   info: {

@@ -1,5 +1,7 @@
 package com.hotel.backend.dto.request;
 
+import java.io.Serializable;
+
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -12,7 +14,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GalleryRequest {
+public class GalleryRequest implements Serializable{
 
     @Size(max = 255, message = "Tiêu đề tối đa 255 ký tự")
     private String title;
@@ -23,9 +25,4 @@ public class GalleryRequest {
     @NotBlank(message = "URL ảnh không được để trống")
     @Size(max = 500, message = "URL ảnh tối đa 500 ký tự")
     private String imageUrl;
-
-    /**
-     * ID của phòng cụ thể — null nếu là ảnh chung khách sạn.
-     */
-    private Long roomId;
 }

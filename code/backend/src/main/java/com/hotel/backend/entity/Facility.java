@@ -25,8 +25,10 @@ public class Facility extends AbstractEntity<Long> implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String icon;
 
     @ManyToMany(mappedBy = "facilities")
     private Set<RoomType> roomTypes = new HashSet<>();
+
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
 }

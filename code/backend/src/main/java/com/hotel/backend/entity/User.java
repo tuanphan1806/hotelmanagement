@@ -43,6 +43,9 @@ public class User extends AbstractEntity<Long> implements Serializable{
     @Enumerated(EnumType.STRING)
     private UserStatus status= UserStatus.ACTIVE;
 
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     @JsonIgnore
     @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY)
     private Set<Reservation> reservations;

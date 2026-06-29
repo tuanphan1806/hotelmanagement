@@ -1,5 +1,7 @@
 package com.hotel.backend.dto.response;
 
+import java.io.Serializable;
+
 import com.hotel.backend.constant.*;
 
 import lombok.AllArgsConstructor;
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
+public class UserResponse implements Serializable{
     private Long id;
     private String fullName;
     private String username;
@@ -21,5 +23,6 @@ public class UserResponse {
     private String address;
     private Role role;
     private UserStatus status;
+    private String imageUrl;
 }
 

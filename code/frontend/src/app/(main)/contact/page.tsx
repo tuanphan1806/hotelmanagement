@@ -31,26 +31,15 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-bg-light">
-      {/* Navigation */}
-      <header className="absolute top-0 w-full p-6 flex justify-between items-center z-10 bg-white/10 backdrop-blur-md border-b border-white/20">
-        <div className="text-white font-bold text-2xl tracking-tight">
-          {BRAND_NAME}
-        </div>
-        <div className="flex gap-4">
-          <Link href="/" className="px-6 py-2 rounded-md font-medium text-white hover:bg-white/20 transition-colors">
-            Home
-          </Link>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section 
-        className="relative h-[50vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: `url(${hero.bg})` }}
+        className="relative h-[50vh] flex items-center justify-center bg-primary-navy"
       >
-        <div className="absolute inset-0 bg-primary-navy/70"></div>
+        
         <div className="relative z-10 text-center text-white px-6">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">{hero.title}</h1>
+          <h1 className="text-5xl md:text-6xl font-black tracking-wide text-white mb-4 drop-shadow-2xl">
+            {hero.title}
+          </h1>
           <p className="text-xl text-white/80 max-w-2xl mx-auto">{hero.subtitle}</p>
         </div>
       </section>
