@@ -62,15 +62,15 @@ export const FACILITIES_CONTENT = {
         name: 'THE GYM',
       },
       {
-        image: 'https://images.unsplash.com/photo-1576091160550-112173e7d87d?w=1200&h=600&fit=crop',
+        image: 'https://images.unsplash.com/photo-1733253870394-d7feafd52891?w=1200&h=600&fit=crop',
         name: 'POOLSIDE BAR',
       },
       {
-        image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=1200&h=600&fit=crop',
+        image: 'https://images.unsplash.com/photo-1672983666814-a0e43bd3b1b9?w=1200&h=600&fit=crop',
         name: 'THE SPA',
       },
       {
-        image: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=1200&h=600&fit=crop',
+        image: 'https://plus.unsplash.com/premium_photo-1746327707391-d095ac370b9c?w=1200&h=600&fit=crop',
         name: 'SWIMMING POOL',
       },
       {
@@ -78,7 +78,7 @@ export const FACILITIES_CONTENT = {
         name: 'RESTAURANT',
       },
       {
-        image: 'https://images.unsplash.com/photo-1517677129300-07b130802f46?w=1200&h=600&fit=crop',
+        image: 'https://plus.unsplash.com/premium_photo-1764094353672-624ce8627e65?w=1200&h=600&fit=crop',
         name: 'LAUNDRY',
       },
     ],
@@ -140,17 +140,17 @@ export const ROOMS_CONTENT = {
     desc: 'Each of our bright, light-flooded rooms come with everything you could possibly need for a comfortable stay. And yes, comfort isn\'t our only objective, we also focus on good design, catch a midnight run on a flat-screen, complimentary high-speed internet, spacious rooms, standard amenities, and local brands.',
     data: [
       {
-        image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1000&h=600&fit=crop',
+        image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1000&h=600&fit=crop',
         title: 'SINGLE ROOM',
         price: '$147 Avg/night',
       },
       {
-        image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1000&h=600&fit=crop',
+        image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1000&h=600&fit=crop',
         title: 'DOUBLE ROOM',
         price: '$155 Avg/night',
       },
       {
-        image: 'https://images.unsplash.com/photo-1595526014635-a5dc1dd4b08f?w=1000&h=600&fit=crop',
+        image: 'https://images.unsplash.com/photo-1739590269025-07766e4ab657?w=1000&h=600&fit=crop',
         title: 'TWIN ROOM',
         price: '$155 Avg/night',
       },

@@ -13,42 +13,23 @@ export default function RoomsPage() {
           style={{ backgroundImage: `url("${ROOMS_CONTENT.hero.bg}")` }}
         ></div>
         
-          <div className="relative z-10 pl-16 md:pl-32 max-w-4xl text-left mt-20">
-            <h2 className="text-white text-3xl md:text-4xl font-light tracking-wide mb-2">WELCOME TO</h2>
-          <div className="flex flex-col items-center">
-            <h2 className="text-white font-serif text-3xl font-bold tracking-widest leading-none">
-              {BRAND_NAME}
-            </h2>
-
-            <p className="text-white text-xs font-bold tracking-[0.4em] mt-1">
-              {BRAND_TAGLINE}
-            </p>
-          </div>
+        <div className="relative z-10 pl-16 md:pl-32 max-w-4xl text-left mt-20">
+          <h2 className="text-white text-3xl md:text-4xl font-light tracking-wide mb-2">WELCOME TO</h2>
+          <h1 className="text-white font-serif text-6xl md:text-8xl font-bold tracking-widest leading-none mb-2">LUXURY</h1>
+          <h1 className="text-white font-serif text-4xl md:text-5xl font-bold tracking-[0.4em] mb-6">HOTELS</h1>
           <p className="text-white text-lg md:text-xl font-light max-w-lg leading-relaxed">
             Book your stay and enjoy Luxury<br/>redefined at the most affordable rates.
           </p>
         </div>
 
-        {/* Scroll Indicator & Book Now Button */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-10 text-white/80">
-          <button className="bg-accent-gold hover:bg-yellow-500 text-white font-bold py-4 px-8 rounded-md flex items-center gap-3 transition-colors shadow-lg">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/80">
+          <span className="text-sm font-semibold tracking-wider">Scroll</span>
+          <a href="#explore" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary-navy shadow-lg cursor-pointer hover:bg-gray-100 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 9L12 15L18 9" stroke="#14274A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            BOOK NOW
-          </button>
-          
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-sm font-semibold tracking-wider">Scroll</span>
-            <a href="#explore" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary-navy shadow-lg cursor-pointer hover:bg-gray-100 transition-colors">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 9L12 15L18 9" stroke="#14274A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </a>
-          </div>
+          </a>
         </div>
       </section>
 
