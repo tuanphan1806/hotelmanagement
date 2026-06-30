@@ -10,37 +10,33 @@ import {
 import SignupForm from './SignupForm';
 
 export const metadata: Metadata = {
-  title: 'Sign Up – Lumière Palace',
-  description: 'Create your Lumière Palace account to book rooms and enjoy exclusive benefits.',
+  title: 'Sign Up – Luxury Hotels',
+  description: 'Create your Luxury Hotels account to book rooms and enjoy exclusive benefits.',
 };
 
 export default function SignupPage() {
   return (
-    <>
-      {/* ───── Left Hero Panel ───── */}
-      <div className="hidden lg:flex lg:w-[42%] relative overflow-hidden">
+    // Bọc thẻ div cha có flex min-h-screen w-full để ép layout chuẩn chỉnh
+    <div className="flex min-h-screen w-full bg-white">
+      
+      {/* ───── Left Hero Panel (Đã chuẩn hóa lg:w-1/2 theo Login) ───── */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden h-screen sticky top-0">
         <Image
           src="/hotel-lobby.png"
-          alt="Luxury hotel lobby"
+          alt="Luxury hotels lobby"
           fill
           className="object-cover"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30" />
 
-        <div className="relative z-10 flex flex-col justify-between p-10 w-full">
+        {/* Đồng bộ p-10 pt-28 h-full để khớp vị trí với Login */}
+        <div className="relative z-10 flex flex-col justify-between p-10 pt-28 w-full h-full">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent-gold/20 border border-accent-gold/40 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E0B973" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 21h18" />
-                <path d="M5 21V7l7-4 7 4v14" />
-                <path d="M9 21v-6h6v6" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-white text-lg font-bold tracking-wide">{BRAND_NAME}</h2>
-              <p className="text-white/60 text-[10px] tracking-[0.25em] uppercase">{BRAND_TAGLINE}</p>
+          <div className="absolute top-0 left-16 z-50">
+            <div className="bg-accent-gold w-48 h-20 rounded-b-[2rem] flex flex-col items-center justify-center text-primary-navy shadow-lg select-none">
+              <span className="font-serif text-3xl font-bold tracking-widest leading-tight">LUXURY</span>
+              <span className="text-[0.6rem] tracking-[0.4em] font-bold">HOTELS</span>
             </div>
           </div>
 
@@ -74,12 +70,12 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* ───── Right Form Panel ───── */}
-      <div className="flex-1 flex items-center justify-center bg-white px-6 py-10 lg:px-12 overflow-y-auto">
+      {/* ───── Right Form Panel (Đã chuẩn hóa padding px-6 py-12 lg:px-16) ───── */}
+      <div className="flex-1 flex items-center justify-center bg-white px-6 py-12 lg:px-16 overflow-y-auto">
         <div className="w-full max-w-md">
           <SignupForm />
         </div>
       </div>
-    </>
+    </div>
   );
 }

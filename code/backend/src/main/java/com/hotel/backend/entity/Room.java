@@ -21,9 +21,11 @@ public class Room extends AbstractEntity<Long> implements Serializable{
 
     private Integer floor;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private RoomStatus status = RoomStatus.AVAILABLE;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "cleaning_status")
     private CleaningStatus cleaningStatus = CleaningStatus.CLEAN;

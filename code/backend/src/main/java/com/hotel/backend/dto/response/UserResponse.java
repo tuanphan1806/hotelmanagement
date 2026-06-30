@@ -8,9 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
  
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,8 +23,8 @@ public class UserResponse implements Serializable{
     private String email;
     private String phone;
     private String address;
-    private Role role;
-    private UserStatus status;
+    private UserType type ;
+    private UserStatus status ;
     private String imageUrl;
 }
 

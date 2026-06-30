@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -173,21 +176,83 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
-    // ── 500 Internal Server Error — fallback ──────────────────────────────────
+    
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(
-            Exception ex, HttpServletRequest request) {
-
-        log.error("Unhandled exception at {}: {}", request.getRequestURI(), ex.getMessage(), ex);
-
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<ErrorResponse> handleAccessDenied(
+                AccessDeniedException ex, HttpServletRequest request) {
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse.builder()
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                        .error("Internal Server Error")
-                        .message("Đã có lỗi xảy ra, vui lòng thử lại sau")
-                        .path(request.getRequestURI())
-                        .build());
-    }
+                .status(403)
+                .error("Forbidden")
+                .message("Không có quyền truy cập")
+                .path(request.getRequestURI())
+                .build());
+        }
+
+        // Sai username/password khi login
+        @ExceptionHandler(BadCredentialsException.class)
+        public ResponseEntity<ErrorResponse> handleBadCredentials(
+                BadCredentialsException ex, HttpServletRequest request) {
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.builder()
+                .status(401)
+                .error("Unauthorized")
+                .message("Sai tên đăng nhập hoặc mật khẩu")
+                .path(request.getRequestURI())
+                .build());
+        }
+
+        // Chưa đăng nhập / JWT invalid
+        @ExceptionHandler(InternalAuthenticationServiceException.class)
+        public ResponseEntity<ErrorResponse> handleInternalAuthenticationServiceException(
+                InternalAuthenticationServiceException ex, HttpServletRequest request) {
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.builder()
+                .status(401)
+                .error("Unauthorized")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build());
+        }
+        
+        @ExceptionHandler(InvalidDataException.class)
+        public ResponseEntity<ErrorResponse> handleInvalidData(
+                InvalidDataException ex, HttpServletRequest request) {
+
+            log.warn("InvalidDataException: {}", ex.getMessage());
+
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.builder()
+                    .status(401)
+                    .error("Unauthorized")
+                    .message(ex.getMessage())
+                    .path(request.getRequestURI())
+                    .build());
+        }
+
+
+
+
+
+
+        // ── 500 Internal Server Error — fallback ──────────────────────────────────
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponse> handleGeneral(
+                Exception ex, HttpServletRequest request) {     
+                log.error("Unhandled exception at {}: {}", request.getRequestURI(), ex.getMessage(), ex);   
+                return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ErrorResponse.builder()
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .error("Internal Server Error")
+                            .message("Đã có lỗi xảy ra, vui lòng thử lại sau")
+                            .path(request.getRequestURI())
+                            .build());
+        }
 }

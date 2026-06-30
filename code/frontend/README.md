@@ -1,6 +1,6 @@
-# Luxury Hotels - Frontend Application
+# Luxury Hotel - Hotel Management Frontend ⚜
 
-Dự án Frontend được xây dựng bằng framework **Next.js (App Router)** và **Tailwind CSS**. Hướng dẫn dưới đây giúp bạn khởi chạy ứng dụng một cách nhanh nhất.
+Frontend của hệ thống Quản lý Khách sạn Cao cấp **Luxury Hotel**. Dự án được xây dựng trên nền tảng **Next.js 15 (App Router)** kết hợp với **TypeScript**, **TailwindCSS** và hệ thống thiết kế premium (glassmorphic UI, custom animations). Hướng dẫn dưới đây giúp bạn khởi chạy ứng dụng một cách nhanh nhất.
 
 ## 🛠️ Yêu cầu hệ thống
 

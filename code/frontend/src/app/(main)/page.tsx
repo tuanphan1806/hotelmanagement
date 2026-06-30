@@ -67,7 +67,7 @@ export default function HomePage() {
           <div className="md:w-1/2">
             <img 
               src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
-              alt="Luxury Room" 
+              alt="Luxury Rooms" 
               className="w-full h-[400px] object-cover rounded-sm shadow-xl"
             />
           </div>

@@ -1,10 +1,20 @@
+"use client"; 
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname(); 
+
+  const getLinkClass = (path: string) => 
+    `hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:h-[2px] after:bg-accent-gold after:transition-all ${
+      pathname === path ? "after:w-full" : "after:w-0 hover:after:w-full"
+    }`;
+
   return (
     <>
       {/* Header */}
@@ -14,21 +24,14 @@ export default function MainLayout({
           <span className="text-[0.6rem] tracking-[0.4em] font-bold">HOTELS</span>
         </div>
         <div className="ml-48"></div>
+        
         <nav className="flex gap-6 items-center text-sm">
-          <Link href="/" className="hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-[2px] after:bg-white">
-            Home
-          </Link>
-          <Link href="/facilities" className="hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-accent-gold after:transition-all">
-            Facilities
-          </Link>
-          <Link href="/rooms" className="hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-accent-gold after:transition-all">
-            Rooms
-          </Link>
-          <Link href="/contact" className="hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-accent-gold after:transition-all">
-            Contact-us
-          </Link>
-          <Link href="/login" className="hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-accent-gold after:transition-all">Login</Link>
-          <Link href="/signup" className="hover:text-accent-gold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-accent-gold after:transition-all">Sign Up</Link>
+          <Link href="/" className={getLinkClass("/")}>Home</Link>
+          <Link href="/facilities" className={getLinkClass("/facilities")}>Facilities</Link>
+          <Link href="/rooms" className={getLinkClass("/rooms")}>Rooms</Link>
+          <Link href="/contact" className={getLinkClass("/contact")}>Contact Us</Link>
+          <Link href="/login" className={getLinkClass("/login")}>Login</Link>
+          <Link href="/signup" className={getLinkClass("/signup")}>Sign Up</Link>
         </nav>
       </header>
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   SOCIAL_GOOGLE,
   SOCIAL_FACEBOOK,
@@ -22,10 +23,16 @@ import {
   TEXT_LOGIN_PROMPT,
   LINK_LOGIN,
   ERROR_REQUIRED,
+  ERROR_INVALID_FIRST_NAME,
+  ERROR_INVALID_LAST_NAME,
+  ERROR_EMAIL_DOMAIN,
+  ERROR_EMAIL_USERNAME_LENGTH,
+  ERROR_EMAIL_FORMAT,
   ERROR_PASSWORD_MATCH,
-  ERROR_PASSWORD_LENGTH,
+  ERROR_PASSWORD_SPACE,
+  ERROR_PASSWORD_STRICT,
 } from '@/constants/auth';
-import { MOCK_DELAY_MS, MIN_PASSWORD_LENGTH } from '@/constants/numbers';
+import { MOCK_DELAY_MS } from '@/constants/numbers';
 
 /* ────── SVG Icons ────── */
 const UserIcon = () => (
@@ -95,14 +102,15 @@ const inputClass =
   'w-full pl-12 pr-4 py-3 rounded-xl border border-border-light bg-bg-light/50 focus:outline-none focus:ring-2 focus:ring-accent-gold/50 focus:border-accent-gold transition-all text-sm';
 
 export default function SignupForm() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
 
-  // Step 1
+  // Step 1 States
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
 
-  // Step 2
+  // Step 2 States
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -111,34 +119,92 @@ export default function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  /* ────── 1. STEP 1 VALIDATION ────── */
   const handleStep1 = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName || !lastName || !email) {
+    
+    const trimmedFirst = firstName.trim();
+    const trimmedLast = lastName.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
+    // 1. Check empty
+    if (!trimmedFirst || !trimmedLast || !trimmedEmail) {
       setError(ERROR_REQUIRED);
       return;
     }
+
+    // 2. First Name & Last Name (2-50 chars, letters only)
+    const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲÝỴÝỶỸửữựỳýỵỷỹ\s]{2,50}$/;
+    if (!nameRegex.test(trimmedFirst)) {
+      setError(ERROR_INVALID_FIRST_NAME);
+      return;
+    }
+    if (!nameRegex.test(trimmedLast)) {
+      setError(ERROR_INVALID_LAST_NAME);
+      return;
+    }
+
+    // 3. Domain Check
+    if (!trimmedEmail.endsWith("@luxuryhotels.com")) {
+      setError(ERROR_EMAIL_DOMAIN);
+      return;
+    }
+
+    // 4. Local-part (Username) Check
+    const username = trimmedEmail.split("@")[0];
+
+    if (username.length < 3) {
+      setError(ERROR_EMAIL_USERNAME_LENGTH);
+      return;
+    }
+
+    // Must contain BOTH letters and numbers. No consecutive/leading/trailing dots or underscores.
+    const strictUsernameRegex = /^(?![_.])(?!.*[_.]{2})(?=.*[a-z])(?=.*[0-9])[a-z0-9._%+-]+(?<![_.])$/;
+    if (!strictUsernameRegex.test(username)) {
+      setError(ERROR_EMAIL_FORMAT);
+      return;
+    }
+
     setError('');
     setStep(2);
   };
 
+  /* ────── 2. STEP 2 VALIDATION & REDIRECT ────── */
   const handleStep2 = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 1. Check empty
     if (!password || !confirmPassword) {
       setError(ERROR_REQUIRED);
       return;
     }
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      setError(ERROR_PASSWORD_LENGTH);
-      return;
-    }
+
+    // 2. Check Match First (Ưu tiên hiển thị thông báo mật khẩu không trùng khớp)
     if (password !== confirmPassword) {
       setError(ERROR_PASSWORD_MATCH);
       return;
     }
+
+    // 3. Check spaces
+    if (/\s/.test(password)) {
+      setError(ERROR_PASSWORD_SPACE);
+      return;
+    }
+
+    // 4. Password Standard (ASCII only - Chặn chữ có dấu)
+    const strictPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
+    if (!strictPasswordRegex.test(password)) {
+      setError(ERROR_PASSWORD_STRICT);
+      return;
+    }
+
     setError('');
     setIsLoading(true);
+    
     setTimeout(() => {
       setIsLoading(false);
+      // Redirect to Login Page on Success
+      router.push('/login');
     }, MOCK_DELAY_MS);
   };
 
@@ -179,12 +245,11 @@ export default function SignupForm() {
 
           <form onSubmit={handleStep1} className="space-y-5">
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm" role="alert" aria-live="assertive">
+              <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium" role="alert" aria-live="assertive">
                 {error}
               </div>
             )}
 
-            {/* First + Last Name (2 columns) */}
             <div className="grid grid-cols-2 gap-4">
               <FormInput id="signup-first" label={LABEL_FIRST_NAME} required icon={<UserIcon />}>
                 <input
@@ -211,11 +276,10 @@ export default function SignupForm() {
               </FormInput>
             </div>
 
-            {/* Email */}
             <FormInput id="signup-email" label={LABEL_EMAIL} required icon={<MailIcon />}>
               <input
                 id="signup-email"
-                type="email"
+                type="text" 
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -224,7 +288,6 @@ export default function SignupForm() {
               />
             </FormInput>
 
-            {/* Continue */}
             <button
               type="submit"
               className="w-full py-3.5 px-4 bg-accent-gold hover:bg-[#c9a45e] text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 mt-2"
@@ -245,12 +308,11 @@ export default function SignupForm() {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm" role="alert" aria-live="assertive">
+            <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium" role="alert" aria-live="assertive">
               {error}
             </div>
           )}
 
-          {/* Password */}
           <FormInput id="signup-password" label={LABEL_PASSWORD} required icon={<LockIcon />}>
             <input
               id="signup-password"
@@ -266,13 +328,11 @@ export default function SignupForm() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-text-light hover:text-text-dark transition-colors"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </FormInput>
 
-          {/* Confirm Password */}
           <FormInput id="signup-confirm" label={LABEL_CONFIRM_PASSWORD} required icon={<LockIcon />}>
             <input
               id="signup-confirm"
@@ -287,13 +347,11 @@ export default function SignupForm() {
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-text-light hover:text-text-dark transition-colors"
-              aria-label={showConfirm ? 'Hide password' : 'Show password'}
             >
               {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </FormInput>
 
-          {/* Terms */}
           <p className="text-xs text-text-light leading-relaxed">
             By creating an account, you agree to our{' '}
             <Link href="#" className="text-accent-gold hover:underline">Terms of Service</Link>
@@ -301,7 +359,6 @@ export default function SignupForm() {
             <Link href="#" className="text-accent-gold hover:underline">Privacy Policy</Link>.
           </p>
 
-          {/* Buttons */}
           <div className="flex gap-3">
             <button
               type="button"

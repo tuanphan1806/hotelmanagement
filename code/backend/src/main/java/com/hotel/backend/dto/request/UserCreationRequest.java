@@ -17,16 +17,16 @@ public class UserCreationRequest implements Serializable{
     @NotBlank
     private String username;
 
-    @Email
+    @Email(message = "email invalid")
     @NotBlank
     private String email;
 
-    // @NotBlank
-    // private String password;
 
     @NotBlank
     private String phone;
 
     private String address;
     private String imageUrl;
+    @NotBlank
+    private String password;
 }

@@ -13,8 +13,8 @@ import {
 import LoginForm from './LoginForm';
 
 export const metadata: Metadata = {
-  title: 'Login – Luxury Hotel',
-  description: 'Sign in to access your Luxury Hotel management portal.',
+  title: 'Login – Luxury Hotels',
+  description: 'Sign in to access your Luxury Hotels management portal.',
 };
 
 export default function LoginPage() {
@@ -31,19 +31,12 @@ export default function LoginPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30" />
 
-        <div className="relative z-10 flex flex-col justify-between p-10 w-full">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent-gold/20 border border-accent-gold/40 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E0B973" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 21h18" />
-                <path d="M5 21V7l7-4 7 4v14" />
-                <path d="M9 21v-6h6v6" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-white text-lg font-bold tracking-wide">{BRAND_NAME}</h2>
-              <p className="text-white/60 text-[10px] tracking-[0.25em] uppercase">{BRAND_TAGLINE}</p>
+        <div className="relative z-10 flex flex-col justify-between p-10 pt-28 w-full h-full">
+          {/* LOGO*/}
+          <div className="absolute top-0 left-16 z-50">
+            <div className="bg-accent-gold w-48 h-20 rounded-b-[2rem] flex flex-col items-center justify-center text-primary-navy shadow-lg select-none">
+              <span className="font-serif text-3xl font-bold tracking-widest leading-tight">LUXURY</span>
+              <span className="text-[0.6rem] tracking-[0.4em] font-bold">HOTELS</span>
             </div>
           </div>
 

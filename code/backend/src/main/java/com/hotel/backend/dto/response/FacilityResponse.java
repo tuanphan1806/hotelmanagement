@@ -1,9 +1,7 @@
 package com.hotel.backend.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import java.time.LocalDateTime;
 
 /**
  * Payload trả về cho client sau mọi thao tác với Facility.

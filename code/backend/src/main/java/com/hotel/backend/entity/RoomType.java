@@ -34,6 +34,7 @@ public class RoomType extends AbstractEntity<Long> implements Serializable{
         joinColumns = @JoinColumn(name = "room_type_id"),
         inverseJoinColumns = @JoinColumn(name = "facility_id")
     )
+    @Builder.Default
     private Set<Facility> facilities = new HashSet<>();
 
     @OneToMany(mappedBy = "roomType")
