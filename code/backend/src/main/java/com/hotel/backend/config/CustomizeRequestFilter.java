@@ -124,10 +124,8 @@ private final UserTokenRepository userTokenRepository;
                    uri.startsWith("/api/facilities") ||
                    uri.startsWith("/api/galleries") ||
                    uri.startsWith("/api/reviews") ||
-                   uri.equals("/api/rooms/available");
-        }
-        if (method.equals("POST")) {
-            return uri.startsWith("/api/reservations");
+                   uri.equals("/api/rooms/available") ||
+                   uri.equals("/api/reservations/availability");
         }
 
         return false;

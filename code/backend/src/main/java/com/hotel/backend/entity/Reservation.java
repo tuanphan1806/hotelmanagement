@@ -8,7 +8,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reservations")
@@ -25,10 +26,10 @@ public class Reservation extends AbstractEntity<Long> implements Serializable {
     private User customer;
 
     @Column(name = "check_in", nullable = false)
-    private LocalDate checkIn;
+    private LocalDateTime checkIn;
 
     @Column(name = "check_out", nullable = false)
-    private LocalDate checkOut;
+    private LocalDateTime checkOut;
 
     @Column(name = "total_amount", precision = 12, scale = 2, nullable = false)
     private BigDecimal totalAmount;

@@ -1,6 +1,7 @@
 package com.hotel.backend.repository;
 
 import com.hotel.backend.constant.RoomStatus;
+import com.hotel.backend.constant.AssignStatus;
 import com.hotel.backend.constant.CleaningStatus;
 import com.hotel.backend.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,6 +30,5 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
        @Query("SELECT r FROM Room r JOIN r.roomType rt WHERE LOWER(r.roomName) LIKE :keyword OR LOWER(rt.typeName) LIKE :keyword OR LOWER(r.status) LIKE :keyword or LOWER(r.cleaningStatus) LIKE :keyword")
        Page<Room> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
-
        
 }

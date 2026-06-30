@@ -1,11 +1,17 @@
 package com.hotel.backend.dto.request;
-
-import com.hotel.backend.constant.AssignStatus;
-import lombok.Data;
-
+ 
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+ 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AssignRoomRequest {
-    private Long reservationRoomTypeId;
-    private Long roomId; // ID phòng cụ thể do lễ tân chọn gán
-    private AssignStatus status;
+ 
+    @NotNull(message = "reservationRoomId không được để trống")
+    private Long reservationRoomId;
+ 
+    @NotNull(message = "roomId không được để trống")
+    private Long roomId;
 }

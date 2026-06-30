@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,4 +41,36 @@ public interface RoomTypeRepository extends JpaRepository<RoomType, Long> {
      * Kiểm tra trùng tên khi cập nhật (loại trừ chính bản ghi đang sửa).
      */
     boolean existsByTypeNameIgnoreCaseAndIdNot(String typeName, Long id);
+
+    Optional<RoomType> findByTypeName(String typeName);
+ 
+    // Tổng số phòng của 1 room type (dùng cho availability check)
+    @Query("""
+        SELECT COUNT(r) FROM Room r
+        WHERE r.roomType.id = :roomTypeId
+        AND r.status != 'MAINTENANCE'
+    """)
+    int countAvailableRoomsByType(@Param("roomTypeId") Long roomTypeId);
+ 
+    // Lấy tất cả room type còn phòng trống trong khoảng ngày
+    @Query("""
+        SELECT rt FROM RoomType rt
+        WHERE (
+            SELECT COUNT(r) FROM Room r
+            WHERE r.roomType = rt
+            AND r.status != 'MAINTENANCE'
+        ) > (
+            SELECT COALESCE(SUM(rrt.quantity), 0)
+            FROM ReservationRoomType rrt
+            JOIN rrt.reservation res
+            WHERE rrt.roomType = rt
+            AND res.status IN ('CONFIRMED', 'CHECKED_IN')
+            AND res.checkIn  < :checkOut
+            AND res.checkOut > :checkIn
+        )
+    """)
+    List<RoomType> findAvailableRoomTypes(
+        @Param("checkIn")  LocalDateTime checkIn,
+        @Param("checkOut") LocalDateTime checkOut
+    );
 }

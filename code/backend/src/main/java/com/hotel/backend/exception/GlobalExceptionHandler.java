@@ -235,7 +235,22 @@ public class GlobalExceptionHandler {
                     .build());
         }
 
-
+        @ExceptionHandler(AppException.class)
+        public ResponseEntity<ErrorResponse> handleAppException(
+                AppException ex, HttpServletRequest request) {
+                
+            ErrorCode code = ex.getErrorCode();
+            log.warn("AppException: code={} message={}", code.getCode(), ex.getMessage());
+                
+            return ResponseEntity
+                    .status(code.getHttpStatus())
+                    .body(ErrorResponse.builder()
+                            .status(code.getHttpStatus().value())
+                            .error(code.getHttpStatus().getReasonPhrase())
+                            .message(ex.getMessage())
+                            .path(request.getRequestURI())
+                            .build());
+        }
 
 
 

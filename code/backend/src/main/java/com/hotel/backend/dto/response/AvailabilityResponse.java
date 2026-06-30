@@ -1,0 +1,26 @@
+package com.hotel.backend.dto.response;
+ 
+import lombok.*;
+ 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+ 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class AvailabilityResponse {
+ 
+    private Long roomTypeId;
+    private String roomTypeName;
+    private String description;
+    private BigDecimal pricePerHour;   // giá theo giờ
+    private String imageUrl;
+    private LocalDateTime checkIn;
+    private LocalDateTime checkOut;
+    private long totalHours;           // tổng số giờ thuê
+    private int totalRooms;
+    private int bookedRooms;
+    private int heldRooms;
+    private int availableRooms;
+}
