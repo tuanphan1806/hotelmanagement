@@ -1,13 +1,16 @@
 package com.hotel.backend.service.Impl;
 
 import com.hotel.backend.constant.AssignStatus;
+import com.hotel.backend.constant.CleaningStatus;
 import com.hotel.backend.constant.HoldStatus;
 import com.hotel.backend.constant.ReservationStatus;
+import com.hotel.backend.constant.RoomStatus;
 import com.hotel.backend.dto.request.AssignRoomRequest;
 import com.hotel.backend.dto.request.CancelReservationRequest;
 import com.hotel.backend.dto.request.CreateReservationRequest;
 import com.hotel.backend.dto.request.RoomTypeItemRequest;
 import com.hotel.backend.dto.request.UpdateReservationRequest;
+import com.hotel.backend.dto.request.GuestRequest;
 import com.hotel.backend.dto.response.*;
 import com.hotel.backend.entity.*;
 import com.hotel.backend.exception.AppException;
@@ -40,7 +43,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final RoomTypeRepository             roomTypeRepository;
     private final UserRepository                 userRepository;
     private final RoomRepository                 roomRepository;
-
+    private final GuestRepository                guestRepository;
     // ─────────────────────────────────────────────────────────────────────────
     // Tạo đặt phòng
     // ─────────────────────────────────────────────────────────────────────────
@@ -349,9 +352,42 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
                         String.format("Phòng '%s' đang có khách", room.getRoomName()));
             }
 
+            long primaryCount = req.getGuests().stream()
+            .filter(g -> Boolean.TRUE.equals(g.getIsPrimary()))
+            .count();
+            if (primaryCount == 0) {
+                throw new AppException(ErrorCode.GUEST_PRIMARY_REQUIRED);
+            }
+            if (primaryCount > 1) {
+                throw new AppException(ErrorCode.GUEST_MULTIPLE_PRIMARY);
+            }
+
+            //nv check lai de xem co the tao nhieu guest
+            List<Guest> existingGuests = guestRepository.findByReservationRoomId(rr.getId());
+            if (existingGuests.isEmpty()) {
+                for (GuestRequest g : req.getGuests()) {
+                    Guest guest = Guest.builder()
+                            .reservationRoom(rr)
+                            .fullName(g.getFullName())
+                            .phone(g.getPhone())
+                            .email(g.getEmail())
+                            .idCardNumber(g.getIdCardNumber())
+                            .idCardType(g.getIdCardType())
+                            .dateOfBirth(g.getDateOfBirth())
+                            .nationality(g.getNationality())
+                            .isPrimary(g.getIsPrimary())
+                            .build();
+                    guestRepository.save(guest);
+                }
+            } else {
+                log.info("ReservationRoom {} đã có guest, bỏ qua tạo mới", rr.getId());
+            }
             rr.setRoom(room);
             rr.setStatus(AssignStatus.CHECKED_IN);
             reservationRoomRepository.save(rr);
+
+            room.setStatus(RoomStatus.CHECKED_IN);
+            roomRepository.save(room);
         }
 
         reservation.setStatus(ReservationStatus.CHECKED_IN);
@@ -374,9 +410,27 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
         // Giải phóng phòng → CHECKED_OUT
         List<ReservationRoom> rooms = 
                 reservationRoomRepository.findAllByReservationId(reservationId);
+
+        LocalDateTime now = LocalDateTime.now();
+
         rooms.forEach(rr -> {
             rr.setStatus(AssignStatus.CHECKED_OUT);
             reservationRoomRepository.save(rr);
+            Room room = rr.getRoom();
+            if (room != null) {
+                room.setStatus(RoomStatus.AVAILABLE);
+                room.setCleaningStatus(CleaningStatus.CLEAN); // cần dọn trước khi cho khách tiếp theo
+                roomRepository.save(room);
+            }
+
+            // Bỏ gán guest khỏi room — giữ lại data, đánh dấu thời điểm checkout
+            List<Guest> guests = guestRepository.findByReservationRoomId(rr.getId());
+            guests.forEach(guest -> {
+                guest.setReservationRoom(null);
+                guest.setCheckedOutAt(now);
+                guestRepository.save(guest);
+            });
+
         });
 
         reservation.setStatus(ReservationStatus.CHECKED_OUT);

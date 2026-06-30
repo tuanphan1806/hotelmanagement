@@ -1,5 +1,7 @@
 package com.hotel.backend.dto.response;
  
+import java.util.List;
+
 import com.hotel.backend.constant.AssignStatus;
 import com.hotel.backend.entity.ReservationRoom;
 import lombok.*;
@@ -16,6 +18,7 @@ public class ReservationRoomResponse {
     private String roomName;
     private AssignStatus status;
     private Long assignedById;
+    private List<GuestResponse> guests;
  
     public static ReservationRoomResponse from(ReservationRoom rr) {
         return ReservationRoomResponse.builder()

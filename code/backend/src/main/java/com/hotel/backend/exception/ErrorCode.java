@@ -39,8 +39,20 @@ public enum ErrorCode {
     RESERVATION_CANNOT_CHECKIN(5007, "Chỉ có thể check-in khi đặt phòng đã CONFIRMED", HttpStatus.BAD_REQUEST),
     RESERVATION_CANNOT_CHECKOUT(5008, "Chỉ có thể check-out khi đang CHECKED_IN", HttpStatus.BAD_REQUEST),
 
+    // ── Review ───────────────────────────────────────────────
+    REVIEW_NOT_FOUND(5050, "Không tìm thấy đánh giá", HttpStatus.NOT_FOUND),
+    REVIEW_NOT_OWNER(5051, "Bạn không có quyền với đánh giá này", HttpStatus.FORBIDDEN),
+    REVIEW_ALREADY_EXISTS(5052, "Bạn đã đánh giá đặt phòng này rồi", HttpStatus.CONFLICT),
+    REVIEW_RESERVATION_NOT_COMPLETED(5053, "Chỉ có thể đánh giá sau khi đã trả phòng", HttpStatus.BAD_REQUEST),
+
+    // ── Guest
+    GUEST_NOT_FOUND(5060, "Không tìm thấy thông tin khách", HttpStatus.NOT_FOUND),
+    GUEST_PRIMARY_REQUIRED(5061, "Phòng phải có ít nhất 1 khách chính (isPrimary=true)", HttpStatus.BAD_REQUEST),
+    GUEST_MULTIPLE_PRIMARY(5062, "Phòng chỉ được có 1 khách chính", HttpStatus.BAD_REQUEST),
     // ── Customer / User ──────────────────────────────────────
     CUSTOMER_NOT_FOUND(5040, "Không tìm thấy khách hàng", HttpStatus.NOT_FOUND),
+
+
     ;
 
     private final int code;

@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -19,7 +20,7 @@ public class Guest extends AbstractEntity<Long> implements Serializable{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_room_id")
-    private ReservationRoom reservationRoom;
+    private ReservationRoom reservationRoom;// nullable — null khi đã check-out
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -43,5 +44,8 @@ public class Guest extends AbstractEntity<Long> implements Serializable{
     @Builder.Default
     @Column(name = "is_primary")
     private Boolean isPrimary = false;
+
+    @Column(name = "checked_out_at")
+    private LocalDateTime checkedOutAt;
 
 }

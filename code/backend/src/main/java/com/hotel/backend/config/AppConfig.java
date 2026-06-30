@@ -50,6 +50,7 @@ public class AppConfig {
                 .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/rooms/available").permitAll()
                 .requestMatchers(HttpMethod.PATCH,"/api/reservations").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
                 .anyRequest().authenticated())
             .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
@@ -70,7 +71,7 @@ public class AppConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE","PATCH")
                         .allowedHeaders("*")
                         .allowCredentials(false)
                         .maxAge(3600);
