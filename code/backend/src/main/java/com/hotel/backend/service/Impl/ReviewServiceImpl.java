@@ -7,6 +7,7 @@ import com.hotel.backend.dto.response.ReviewResponse;
 import com.hotel.backend.dto.response.RoomTypeRatingResponse;
 import com.hotel.backend.entity.Reservation;
 import com.hotel.backend.entity.Review;
+import com.hotel.backend.entity.RoomType;
 import com.hotel.backend.entity.User;
 import com.hotel.backend.exception.AppException;
 import com.hotel.backend.exception.ErrorCode;
@@ -49,14 +50,14 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AppException(ErrorCode.REVIEW_RESERVATION_NOT_COMPLETED);
         }
 
-        // Không cho review trùng reservation
-        if (reviewRepository.existsByUserIdAndReservationId(userId, request.getReservationId())) {
+        // Không cho review trùng cùng room type trong một reservation
+        if (reviewRepository.existsByUserIdAndReservationIdAndRoomTypeId(
+                userId, request.getReservationId(), request.getRoomTypeId())) {
             throw new AppException(ErrorCode.REVIEW_ALREADY_EXISTS);
         }
 
-        // Lấy room type đầu tiên của reservation để gắn review
-        // (1 reservation có thể có nhiều room type — review theo room type đầu tiên)
-        var roomType = reservation.getRoomTypes().stream()
+        RoomType roomType = reservation.getRoomTypes().stream()
+                .filter(rrt -> rrt.getRoomType().getId().equals(request.getRoomTypeId()))
                 .findFirst()
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_TYPE_NOT_FOUND))
                 .getRoomType();
@@ -70,8 +71,8 @@ public class ReviewServiceImpl implements ReviewService {
                 .build();
         reviewRepository.save(review);
 
-        log.info("Review created: userId={} reservationId={} rating={}",
-                userId, request.getReservationId(), request.getRating());
+        log.info("Review created: userId={} reservationId={} roomTypeId={} rating={}",
+                userId, request.getReservationId(), request.getRoomTypeId(), request.getRating());
         return ReviewResponse.from(review);
     }
 

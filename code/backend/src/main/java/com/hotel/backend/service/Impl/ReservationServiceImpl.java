@@ -24,9 +24,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,8 +70,12 @@ public class ReservationServiceImpl implements ReservationService {
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<RoomTypeWithPrice> roomTypeWithPrices = new ArrayList<>();
 
-        for (RoomTypeItemRequest item : request.getRoomTypes()) {
-            RoomType roomType = roomTypeRepository.findById(item.getRoomTypeId())
+        List<RoomTypeItemRequest> roomTypeRequests = request.getRoomTypes().stream()
+                .sorted(Comparator.comparing(RoomTypeItemRequest::getRoomTypeId))
+                .toList();
+
+        for (RoomTypeItemRequest item : roomTypeRequests) {
+            RoomType roomType = roomTypeRepository.findByIdForUpdate(item.getRoomTypeId())
                     .orElseThrow(() -> new AppException(ErrorCode.ROOM_TYPE_NOT_FOUND));
 
             checkAvailabilityOrThrow(roomType, item.getQuantity(),
@@ -177,8 +183,12 @@ public class ReservationServiceImpl implements ReservationService {
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<RoomTypeWithPrice> roomTypeWithPrices = new ArrayList<>();
 
-        for (RoomTypeItemRequest item : request.getRoomTypes()) {
-            RoomType roomType = roomTypeRepository.findById(item.getRoomTypeId())
+        List<RoomTypeItemRequest> roomTypeRequests = request.getRoomTypes().stream()
+                .sorted(Comparator.comparing(RoomTypeItemRequest::getRoomTypeId))
+                .toList();
+
+        for (RoomTypeItemRequest item : roomTypeRequests) {
+            RoomType roomType = roomTypeRepository.findByIdForUpdate(item.getRoomTypeId())
                     .orElseThrow(() -> new AppException(ErrorCode.ROOM_TYPE_NOT_FOUND));
 
             checkAvailabilityOrThrow(roomType, item.getQuantity(),
@@ -288,14 +298,8 @@ public List<ReservationResponse> getReservationsByCustomer(Long customerId) {
             throw new AppException(ErrorCode.RESERVATION_CANNOT_CANCEL);
         }
 
-        // Release tất cả hold
-        reservation.getRoomTypes().forEach(rrt -> {
-            if (rrt.getRoomHold() != null
-                    && rrt.getRoomHold().getStatus() == HoldStatus.ACTIVE) {
-                rrt.getRoomHold().setStatus(HoldStatus.RELEASED);
-                roomHoldRepository.save(rrt.getRoomHold());
-            }
-        });
+        releaseReservationHolds(reservation);
+        markSuccessfulPaymentsRefundRequired(reservationId, request.getCancellationReason());
 
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservation.setCancellationReason(request.getCancellationReason());
@@ -318,12 +322,12 @@ public List<ReservationResponse> getReservationsByCustomer(Long customerId) {
             throw new AppException(ErrorCode.RESERVATION_CANNOT_CONFIRM);
         }
 
-        // Chỉ bắt buộc thanh toán cọc nếu KHÔNG phải staff/admin tạo hộ
 
-        boolean isPaid = paymentTransactionRepository.existsByReservationIdAndStatus(
-                reservationId, PaymentStatus.SUCCESS);
-        if (!isPaid) {
-            throw new AppException(ErrorCode.RESERVATION_PAYMENT_REQUIRED);
+
+        long requiredDeposit = getRequiredDepositAmount(reservation);
+        if (!paymentTransactionRepository.hasPaidEnough(reservationId, requiredDeposit)) {
+            throw new AppException(ErrorCode.RESERVATION_PAYMENT_REQUIRED,
+                    String.format("Cần thanh toán tối thiểu %,d VND để xác nhận đặt phòng", requiredDeposit));
         }
         
 
@@ -402,7 +406,7 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
             throw new AppException(ErrorCode.RESERVATION_ROOM_NOT_FOUND);
         }
 
-        Room room = roomRepository.findById(request.getRoomId())
+        Room room = roomRepository.findByIdForUpdate(request.getRoomId())
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
         // Kiểm tra đúng room type
@@ -416,6 +420,8 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
                 room.getId(), reservationId)) {
             throw new AppException(ErrorCode.ROOM_ALREADY_ASSIGNED);
         }
+
+        ensureRoomHasNoOverlappingAssignment(room, reservationRoom.getReservationRoomType().getReservation());
 
         reservationRoom.setRoom(room);
         reservationRoom.setStatus(AssignStatus.ASSIGNED);
@@ -445,14 +451,18 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
                     "Số phòng gán không khớp với số phòng đặt");
         }
 
+        List<AssignRoomRequest> sortedRequests = requests.stream()
+                .sorted(Comparator.comparing(AssignRoomRequest::getRoomId))
+                .toList();
+
         // Gán phòng + CHECKED_IN từng ReservationRoom
-        for (AssignRoomRequest req : requests) {
+        for (AssignRoomRequest req : sortedRequests) {
             ReservationRoom rr = reservationRooms.stream()
                     .filter(r -> r.getId().equals(req.getReservationRoomId()))
                     .findFirst()
                     .orElseThrow(() -> new AppException(ErrorCode.RESERVATION_ROOM_NOT_FOUND));
             
-            Room room = roomRepository.findById(req.getRoomId())
+            Room room = roomRepository.findByIdForUpdate(req.getRoomId())
                     .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
             // Kiểm tra đúng room type
@@ -467,6 +477,8 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
                 throw new AppException(ErrorCode.ROOM_NOT_AVAILABLE,
                         String.format("Phòng '%s' đang có khách", room.getRoomName()));
             }
+
+            ensureRoomHasNoOverlappingAssignment(room, reservation);
 
             long primaryCount = req.getGuests().stream()
             .filter(g -> Boolean.TRUE.equals(g.getIsPrimary()))
@@ -522,11 +534,12 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
         if (reservation.getStatus() != ReservationStatus.CHECKED_IN) {
             throw new AppException(ErrorCode.RESERVATION_CANNOT_CHECKOUT);
         }
-        // Bắt buộc đã thanh toán thành công mới cho checkout
-        boolean isPaid = paymentTransactionRepository.existsByReservationIdAndStatus(
-                reservationId, PaymentStatus.SUCCESS);
-        if (!isPaid) {
-            throw new AppException(ErrorCode.RESERVATION_PAYMENT_REQUIRED);
+        // Bắt buộc đã thanh toán đủ tổng tiền (áp dụng chung online booking + walk-in)
+        long totalAmount = reservation.getTotalAmount().longValue();
+        long paidAmount = getPaidAmount(reservationId);
+        if (paidAmount < totalAmount) {
+            throw new AppException(ErrorCode.RESERVATION_PAYMENT_REQUIRED,
+                    String.format("Còn phải thanh toán %,d VND", totalAmount - paidAmount));
         }
 
         // Giải phóng phòng → CHECKED_OUT
@@ -603,7 +616,24 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
         return ReservationResponse.from(reservation);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public FinalPaymentResponse calculateFinalPayment(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESERVATION_NOT_FOUND));
 
+        long totalAmount = reservation.getTotalAmount().longValue();
+        long paidAmount = getPaidAmount(reservationId);
+        long remaining = Math.max(0, totalAmount - paidAmount);
+
+        return FinalPaymentResponse.builder()
+                .reservationId(reservationId)
+                .totalAmount(totalAmount)
+                .paidAmount(paidAmount)
+                .remainingAmount(remaining)
+                .fullyPaid(remaining <= 0)
+                .build();
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // Helpers
@@ -616,6 +646,55 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
         throw new AppException(ErrorCode.RESERVATION_CHECKIN_PAST);
     }
 }
+
+    private long getPaidAmount(Long reservationId) {
+        Long paidAmount = paymentTransactionRepository.sumSuccessAmountByReservationId(reservationId);
+        return paidAmount != null ? paidAmount : 0L;
+    }
+    // Tính số tiền đặt cọc cần thanh toán để xác nhận đặt phòng (có thể là 50% hoặc toàn bộ)
+    private static final BigDecimal DEPOSIT_RATE = BigDecimal.valueOf(0.5); // 50%
+    private long getRequiredDepositAmount(Reservation reservation) {
+    return reservation.getTotalAmount()
+            .multiply(DEPOSIT_RATE)
+            .setScale(0, RoundingMode.CEILING)
+            .longValue();
+    }
+
+    private void releaseReservationHolds(Reservation reservation) {
+        reservation.getRoomTypes().forEach(rrt -> {
+            RoomHold hold = rrt.getRoomHold();
+            if (hold != null && List.of(HoldStatus.ACTIVE, HoldStatus.CONVERTED).contains(hold.getStatus())) {
+                hold.setStatus(HoldStatus.RELEASED);
+                roomHoldRepository.save(hold);
+            }
+        });
+    }
+
+    private void markSuccessfulPaymentsRefundRequired(Long reservationId, String reason) {
+        List<PaymentTransaction> paidTransactions = paymentTransactionRepository.findByReservationIdAndStatus(
+                reservationId, PaymentStatus.SUCCESS);
+
+        paidTransactions.forEach(transaction -> {
+            transaction.setMessage("Cần hoàn tiền toàn bộ do hủy đặt phòng"
+                    + (reason != null && !reason.isBlank() ? ": " + reason : ""));
+            paymentTransactionRepository.save(transaction);
+        });
+    }
+
+    private void ensureRoomHasNoOverlappingAssignment(Room room, Reservation reservation) {
+        boolean hasOverlap = reservationRoomRepository.existsOverlappingRoomAssignment(
+                room.getId(),
+                reservation.getId(),
+                reservation.getCheckIn(),
+                reservation.getCheckOut(),
+                List.of(AssignStatus.ASSIGNED, AssignStatus.CHECKED_IN));
+
+        if (hasOverlap) {
+            throw new AppException(ErrorCode.ROOM_NOT_AVAILABLE,
+                    String.format("Phòng '%s' đã được gán cho đặt phòng khác trong khoảng thời gian này",
+                            room.getRoomName()));
+        }
+    }
 
     private void checkAvailabilityOrThrow(RoomType roomType, int requested,
                                           LocalDateTime checkIn, LocalDateTime checkOut,

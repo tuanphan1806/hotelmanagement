@@ -1,7 +1,9 @@
 package com.hotel.backend.repository;
 
 import com.hotel.backend.entity.RoomType;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -26,6 +28,10 @@ public interface RoomTypeRepository extends JpaRepository<RoomType, Long> {
      */
     @Query("SELECT rt FROM RoomType rt LEFT JOIN FETCH rt.facilities WHERE rt.id = :id")
     Optional<RoomType> findByIdWithFacilities(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT rt FROM RoomType rt WHERE rt.id = :id")
+    Optional<RoomType> findByIdForUpdate(@Param("id") Long id);
 
     /**
      * Lọc theo khoảng giá — dùng cho API filter.

@@ -115,8 +115,8 @@ private final UserTokenRepository userTokenRepository;
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
-        // Auth endpoints
-        if (uri.startsWith("/auth/")) return true;
+        // Auth endpoints, except logout needs JWT authentication.
+        if (uri.startsWith("/auth/") && !uri.equals("/auth/logout")) return true;
 
         // Public GET endpoints
         if (method.equals("GET")) {

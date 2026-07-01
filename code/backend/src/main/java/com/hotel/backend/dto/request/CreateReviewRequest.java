@@ -13,6 +13,9 @@ public class CreateReviewRequest {
  
     @NotNull(message = "reservationId không được để trống")
     private Long reservationId;
+
+    @NotNull(message = "roomTypeId không được để trống")
+    private Long roomTypeId;
  
     @NotNull(message = "Điểm đánh giá không được để trống")
     @Min(value = 1, message = "Điểm đánh giá tối thiểu là 1")

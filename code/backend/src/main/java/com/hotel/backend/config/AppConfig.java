@@ -8,18 +8,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.hotel.backend.service.UserServiceDetail;
 import com.sendgrid.SendGrid;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -30,6 +26,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class AppConfig {
     //khoi tao spring web security
     //config spring web configurer
@@ -55,19 +52,25 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     http.csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(request -> request
        
+            .requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
             .requestMatchers("/auth/**").permitAll()
+            .requestMatchers("/actuator/**", "/v3/**", "/swagger-ui*/*swagger-initializer*", "/swagger-ui*/**", "/favicon.ico").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
-            .requestMatchers("/api/payments/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/payments/vnpay/return").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/payments/vnpay/ipn").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/payments/cash").hasAnyRole("ADMIN", "STAFF")
+            .requestMatchers(HttpMethod.POST, "/api/payments/refund").hasAnyRole("ADMIN", "STAFF")
+            .requestMatchers(HttpMethod.GET, "/api/payments/**").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/payments/create").authenticated()
             .requestMatchers(HttpMethod.GET, "/api/room-types/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/facilities/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/galleries/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/rooms/available").permitAll()
 
-
-            .requestMatchers(HttpMethod.PATCH,"/api/reservations").permitAll()
-
-            .requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
+            // .requestMatchers(HttpMethod.GET, "/api/users/change-password").permitAll()
+            // .requestMatchers(HttpMethod.PATCH,"/api/reservations").permitAll()
+            // .requestMatchers("/api/payments/**").permitAll()
             .anyRequest().authenticated())
         .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
         .authenticationProvider(authenticationProvider())
@@ -86,26 +89,6 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     return http.build();
 }
 
-    @Bean
-    public WebSecurityCustomizer IgnoreResources() {
-        return webSecurity -> webSecurity.ignoring().requestMatchers("/actuator/**", "/v3/**", "/swagger-ui*/*swagger-initializer*", "/swagger-ui*/**","/favicon.ico");
-    }
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedHeaders("*")
-                        .allowCredentials(false)
-                        .maxAge(3600);
-            }
-        };
-    }
-    
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)throws Exception{
         return config.getAuthenticationManager();

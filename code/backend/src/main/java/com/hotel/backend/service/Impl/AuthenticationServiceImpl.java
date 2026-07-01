@@ -138,28 +138,56 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         // 2. Load user
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (!user.isEnabled()) {
+            throw new InvalidDataException("Tài khoản không còn hoạt động, vui lòng đăng nhập lại");
+        }
+
+        boolean isSingleSession = user.getType() == UserType.STAFF
+                               || user.getType() == UserType.ADMIN;
+
+        if (isSingleSession) {
+            UserToken currentToken = userTokenRepository.findById(user.getId())
+                    .orElseThrow(() -> new InvalidDataException("Phiên đăng nhập không hợp lệ, vui lòng đăng nhập lại"));
+
+            if (!rJti.equals(currentToken.getRefreshToken())) {
+                throw new InvalidDataException("Refresh token không thuộc phiên đăng nhập hiện tại");
+            }
+
+            if (currentToken.getAccessToken() != null
+                    && !invalidatedTokenRepository.existsByToken(currentToken.getAccessToken())) {
+                invalidatedTokenRepository.save(InvalidatedToken.builder()
+                        .token(currentToken.getAccessToken())
+                        .expiryTime(new Date())
+                        .reason("REFRESH_ROTATED")
+                        .build());
+            }
+        }
+
         List<String> authorities=new ArrayList<>();
         user.getAuthorities().forEach(authority->authorities.add(authority.getAuthority()));
 
         // Blacklist refresh token cũ
         invalidatedTokenRepository.save(InvalidatedToken.builder()
                 .token(rJti)
-                .expiryTime(new Date())
-                .reason("LOGOUT")
+                .expiryTime(jwtService.extractExpiration(token, TokenType.REFRESH_TOKEN))
+                .reason("REFRESH_ROTATED")
                 .build());
 
         // 3. Generate token mới
         String newAccessToken = jwtService.generateAccessToken( username, authorities);
         String newRefreshToken = jwtService.generateRefreshToken( username, authorities);
 
-         // Cập nhật JTI mới
-        String newRefreshJti = jwtService.extractJti(
-        stripBearer(newRefreshToken), TokenType.REFRESH_TOKEN);
-        userTokenRepository.save(UserToken.builder()
-                .userId(user.getId())
-                .refreshToken(newRefreshJti)
-                .createdAt(LocalDateTime.now())
-                .build());
+        if (isSingleSession) {
+            String newAccessJti = jwtService.extractJti(stripBearer(newAccessToken), TokenType.ACCESS_TOKEN);
+            String newRefreshJti = jwtService.extractJti(stripBearer(newRefreshToken), TokenType.REFRESH_TOKEN);
+            userTokenRepository.save(UserToken.builder()
+                    .userId(user.getId())
+                    .accessToken(newAccessJti)
+                    .refreshToken(newRefreshJti)
+                    .createdAt(LocalDateTime.now())
+                    .build());
+        }
         
         log.info("Refresh token rotated for username={}", username);
         return TokenResponse.builder()

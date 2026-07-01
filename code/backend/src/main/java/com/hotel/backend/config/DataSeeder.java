@@ -16,6 +16,7 @@ import com.hotel.backend.repository.RoomTypeRepository;
 import com.hotel.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,7 @@ import java.util.Set;
  */
 @Component
 @RequiredArgsConstructor
+@Order(1)
 public class DataSeeder implements CommandLineRunner {
 
     private final FacilityRepository facilityRepository;
@@ -91,16 +93,15 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private Facility seedFacility(String name, String type, String description, String imageUrl) {
-        if (!facilityRepository.existsByFacilityNameIgnoreCase(name)) {
-            Facility facility = Facility.builder()
-                    .facilityName(name)
-                    .type(type)
-                    .description(description)
-                    .imageUrl(imageUrl)
-                    .build();
-            return facilityRepository.save(facility);
-        }
-        return facilityRepository.findByFacilityNameContainingIgnoreCaseOrderByFacilityNameAsc(name).get(0);
+        Facility facility = facilityRepository.findByFacilityNameIgnoreCase(name)
+                .orElseGet(() -> Facility.builder()
+                        .facilityName(name)
+                        .build());
+
+        facility.setType(type);
+        facility.setDescription(description);
+        facility.setImageUrl(imageUrl);
+        return facilityRepository.save(facility);
     }
 
     // ==================== ROOM TYPES ====================
@@ -158,17 +159,16 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private RoomType seedRoomType(String name, String desc, BigDecimal price, String imageUrl, Set<Facility> facilities) {
-        if (!roomTypeRepository.existsByTypeNameIgnoreCase(name)) {
-            RoomType rt = RoomType.builder()
-                    .typeName(name)
-                    .description(desc)
-                    .price(price)
-                    .imageUrl(imageUrl)
-                    .facilities(new HashSet<>(facilities))
-                    .build();
-            return roomTypeRepository.save(rt);
-        }
-        return roomTypeRepository.findByTypeName(name).orElseThrow();
+        RoomType rt = roomTypeRepository.findByTypeName(name)
+                .orElseGet(() -> RoomType.builder()
+                        .typeName(name)
+                        .build());
+
+        rt.setDescription(desc);
+        rt.setPrice(price);
+        rt.setImageUrl(imageUrl);
+        rt.setFacilities(new HashSet<>(facilities));
+        return roomTypeRepository.save(rt);
     }
 
     // ==================== ROOMS ====================
@@ -193,17 +193,25 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedRoom(String roomName, int floor, String description, RoomType roomType) {
-        if (!roomRepository.existsByRoomName(roomName)) {
-            Room room = Room.builder()
-                    .roomName(roomName)
-                    .floor(floor)
-                    .description(description)
-                    .roomType(roomType)
-                    .status(RoomStatus.AVAILABLE)
-                    .cleaningStatus(CleaningStatus.CLEAN)
-                    .build();
-            roomRepository.save(room);
+        Room room = roomRepository.findByRoomName(roomName)
+                .orElseGet(() -> Room.builder()
+                        .roomName(roomName)
+                        .status(RoomStatus.AVAILABLE)
+                        .cleaningStatus(CleaningStatus.CLEAN)
+                        .build());
+
+        room.setFloor(floor);
+        room.setDescription(description);
+        room.setRoomType(roomType);
+
+        if (room.getStatus() == null) {
+            room.setStatus(RoomStatus.AVAILABLE);
         }
+        if (room.getCleaningStatus() == null) {
+            room.setCleaningStatus(CleaningStatus.CLEAN);
+        }
+
+        roomRepository.save(room);
     }
 
     // ==================== GALLERIES ====================
@@ -220,14 +228,14 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedGallery(String title, String type, String imageUrl) {
-        if (!galleryRepository.existsByImageUrl(imageUrl)) {
-            Gallery gallery = Gallery.builder()
-                    .title(title)
-                    .type(type)
-                    .imageUrl(imageUrl)
-                    .build();
-            galleryRepository.save(gallery);
-        }
+        Gallery gallery = galleryRepository.findByImageUrl(imageUrl)
+                .orElseGet(() -> Gallery.builder()
+                        .imageUrl(imageUrl)
+                        .build());
+
+        gallery.setTitle(title);
+        gallery.setType(type);
+        galleryRepository.save(gallery);
     }
 
     // ==================== USERS ====================
@@ -269,46 +277,55 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedUser(String fullName, String username, String email, String password,
                            String phone, String address, UserType type) {
-        if (userExists(username, email)) {
-            return;
+        User user = findExistingUser(username, email, phone);
+        if (user == null) {
+            user = User.builder()
+                    .username(username)
+                    .email(email)
+                    .phone(phone)
+                    .password(passwordEncoder.encode(password))
+                    .build();
         }
 
-        User user = User.builder()
-                .fullName(fullName)
-                .username(username)
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .phone(phone)
-                .address(address)
-                .type(type)
-                .status(UserStatus.ACTIVE)
-                .emailVerified(true)
-                .build();
+        user.setFullName(fullName);
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setAddress(address);
+        user.setType(type);
+        user.setStatus(UserStatus.ACTIVE);
+        user.setEmailVerified(true);
         userRepository.save(user);
     }
 
     private void seedUnverifiedUser(String fullName, String username, String email, String password,
                                      String phone, String address, String verificationCode) {
-        if (userExists(username, email)) {
-            return;
+        User user = findExistingUser(username, email, phone);
+        if (user == null) {
+            user = User.builder()
+                    .username(username)
+                    .email(email)
+                    .phone(phone)
+                    .password(passwordEncoder.encode(password))
+                    .build();
         }
 
-        User user = User.builder()
-                .fullName(fullName)
-                .username(username)
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .phone(phone)
-                .address(address)
-                .type(UserType.CUSTOMER)
-                .status(UserStatus.PENDING_VERIFICATION)
-                .emailVerified(false)
-                .verificationCode(verificationCode)
-                .build();
+        user.setFullName(fullName);
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setAddress(address);
+        user.setType(UserType.CUSTOMER);
+        user.setStatus(UserStatus.PENDING_VERIFICATION);
+        user.setEmailVerified(false);
+        user.setVerificationCode(verificationCode);
         userRepository.save(user);
     }
 
-    private boolean userExists(String username, String email) {
-        return userRepository.existsByUsername(username) || userRepository.existsByEmail(email);
+    private User findExistingUser(String username, String email, String phone) {
+        return userRepository.findByUsername(username)
+                .or(() -> userRepository.findByEmail(email))
+                .or(() -> userRepository.findByPhone(phone))
+                .orElse(null);
     }
 }

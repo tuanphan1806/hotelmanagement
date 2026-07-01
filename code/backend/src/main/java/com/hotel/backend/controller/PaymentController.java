@@ -4,6 +4,7 @@ import com.hotel.backend.dto.request.PaymentRequest;
 import com.hotel.backend.dto.response.PaymentResponse;
 import com.hotel.backend.dto.request.RefundRequest;
 import com.hotel.backend.entity.PaymentTransaction;
+import com.hotel.backend.entity.User;
 import com.hotel.backend.service.PaymentService;
 import com.hotel.backend.service.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -36,13 +38,29 @@ public class PaymentController {
     @PostMapping("/create")
     public ResponseEntity<PaymentResponse> createPayment(
             @Valid @RequestBody PaymentRequest request,
-            HttpServletRequest httpRequest) {
+            HttpServletRequest httpRequest,
+            @AuthenticationPrincipal User currentUser) {
 
         log.info("Yêu cầu tạo thanh toán: bookingId={}, provider={}, amount={}",
                 request.getBookingId(), request.getProvider(), request.getAmount());
 
-        PaymentResponse response = paymentService.createPayment(request, httpRequest);
+        PaymentResponse response = paymentService.createPayment(request, httpRequest, currentUser);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * POST /api/payments/cash
+     * Staff ghi nhận thanh toán tiền mặt tại quầy.
+     */
+    @PostMapping("/cash")
+    public ResponseEntity<PaymentResponse> createCashPayment(
+            @Valid @RequestBody PaymentRequest request,
+            HttpServletRequest httpRequest) {
+
+        log.info("Yêu cầu ghi nhận tiền mặt: bookingId={}, amount={}",
+                request.getBookingId(), request.getAmount());
+
+        return ResponseEntity.ok(paymentService.createCashPayment(request, httpRequest));
     }
 
     // ==================== VNPAY CALLBACKS ====================
@@ -97,8 +115,10 @@ public class PaymentController {
      * Lấy thông tin một giao dịch
      */
     @GetMapping("/{transactionId}")
-    public ResponseEntity<PaymentTransaction> getTransaction(@PathVariable String transactionId) {
-        return ResponseEntity.ok(paymentService.getTransaction(transactionId));
+    public ResponseEntity<PaymentTransaction> getTransaction(
+            @PathVariable String transactionId,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(paymentService.getTransaction(transactionId, currentUser));
     }
 
     /**
@@ -106,8 +126,10 @@ public class PaymentController {
      * Lấy tất cả giao dịch của một booking
      */
     @GetMapping("/booking/{reservationId}")
-    public ResponseEntity<List<PaymentTransaction>> getByBooking(@PathVariable Long reservationId) {
-        return ResponseEntity.ok(paymentService.getTransactionsByReservation(reservationId));
+    public ResponseEntity<List<PaymentTransaction>> getByBooking(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(paymentService.getTransactionsByReservation(reservationId, currentUser));
     }
 
     // ==================== HOÀN TIỀN ====================

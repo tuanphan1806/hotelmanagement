@@ -12,7 +12,7 @@ public class RefundRequest {
 
     @NotNull(message = "amount không được để trống")
     @Min(value = 1000, message = "Số tiền hoàn tối thiểu là 1,000 VND")
-    private Long amount; // Số tiền hoàn (có thể hoàn một phần)
+    private Long amount; // Số tiền hoàn toàn bộ của giao dịch
 
     private String reason; // Lý do hoàn tiền
 }

@@ -5,6 +5,7 @@ import com.hotel.backend.dto.request.CancelReservationRequest;
 import com.hotel.backend.dto.request.CreateReservationRequest;
 import com.hotel.backend.dto.request.UpdateReservationRequest;
 import com.hotel.backend.dto.response.AvailabilityResponse;
+import com.hotel.backend.dto.response.FinalPaymentResponse;
 import com.hotel.backend.dto.response.ReservationResponse;
 import com.hotel.backend.dto.response.ReservationRoomResponse;
  
@@ -44,4 +45,6 @@ public interface ReservationService {
 
     List<ReservationResponse> getAllReservations();
     ReservationResponse updateReservation(Long reservationId, UpdateReservationRequest request);
+
+    FinalPaymentResponse calculateFinalPayment(Long reservationId);
 }

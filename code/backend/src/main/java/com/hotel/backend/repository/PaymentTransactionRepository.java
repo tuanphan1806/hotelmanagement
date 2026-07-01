@@ -37,4 +37,55 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
     boolean existsByReservationIdAndStatus(
             @Param("reservationId") Long reservationId,
             @Param("status") PaymentStatus status);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(pt) > 0 THEN true ELSE false END
+        FROM PaymentTransaction pt
+        WHERE pt.reservation.id = :reservationId
+        AND pt.status IN :statuses
+    """)
+    boolean existsByReservationIdAndStatusIn(
+            @Param("reservationId") Long reservationId,
+            @Param("statuses") List<PaymentStatus> statuses);
+
+
+     @Query("""
+        SELECT COALESCE(SUM(p.amount), 0)
+        FROM PaymentTransaction p
+        WHERE p.reservation.id = :reservationId
+          AND p.status = com.hotel.backend.constant.PaymentStatus.SUCCESS
+    """)
+    Long sumSuccessAmountByReservationId(@Param("reservationId") Long reservationId);
+
+
+     @Query("""
+        SELECT CASE
+                 WHEN COALESCE(SUM(p.amount),0) >= :requiredDeposit
+                 THEN true
+                 ELSE false
+               END
+        FROM PaymentTransaction p
+        WHERE p.reservation.id = :reservationId
+          AND p.status = com.hotel.backend.constant.PaymentStatus.SUCCESS
+    """)
+    boolean hasPaidEnough(
+            @Param("reservationId") Long reservationId,
+            @Param("requiredDeposit") Long requiredDeposit);
+
+
+     @Query("""
+        SELECT CASE
+                 WHEN COALESCE(SUM(p.amount),0) >= r.totalAmount
+                 THEN true
+                 ELSE false
+               END
+        FROM Reservation r
+        LEFT JOIN PaymentTransaction p
+               ON p.reservation.id = r.id
+              AND p.status = com.hotel.backend.constant.PaymentStatus.SUCCESS
+        WHERE r.id = :reservationId
+        GROUP BY r.totalAmount
+    """)
+    boolean isFullyPaid(@Param("reservationId") Long reservationId);
+
 }

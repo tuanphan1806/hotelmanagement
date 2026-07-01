@@ -6,6 +6,7 @@ import com.hotel.backend.dto.request.CreateReservationRequest;
 import com.hotel.backend.dto.request.UpdateReservationRequest;
 import com.hotel.backend.dto.response.ApiResponse;
 import com.hotel.backend.dto.response.AvailabilityResponse;
+import com.hotel.backend.dto.response.FinalPaymentResponse;
 import com.hotel.backend.dto.response.ReservationResponse;
 import com.hotel.backend.dto.response.ReservationRoomResponse;
 import com.hotel.backend.entity.User;
@@ -118,6 +119,11 @@ public ApiResponse<List<AvailabilityResponse>> checkAvailability(
     public ApiResponse<ReservationResponse> checkOut(@PathVariable Long id) {
         return ApiResponse.success("Check-out thành công",
                 reservationService.checkOut(id));
+    }
+
+    @GetMapping("/{id}/final-payment")
+    public ApiResponse<FinalPaymentResponse> calculateFinalPayment(@PathVariable Long id) {
+        return ApiResponse.success(reservationService.calculateFinalPayment(id));
     }
 
     @GetMapping

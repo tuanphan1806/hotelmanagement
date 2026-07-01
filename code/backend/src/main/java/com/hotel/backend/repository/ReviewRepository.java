@@ -16,11 +16,15 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Optional<Review> findByUserIdAndReservationId(Long userId, Long reservationId);
 
+    boolean existsByUserIdAndReservationIdAndRoomTypeId(Long userId, Long reservationId, Long roomTypeId);
+
+    Optional<Review> findByUserIdAndReservationIdAndRoomTypeId(Long userId, Long reservationId, Long roomTypeId);
+
     List<Review> findByRoomTypeIdOrderByCreatedAtDesc(Long roomTypeId);
 
     List<Review> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.roomType.id = :roomTypeId")
+    @Query("SELECT COALESCE(AVG(r.rating), 0.0) FROM Review r WHERE r.roomType.id = :roomTypeId")
     Double getAverageRatingByRoomType(@Param("roomTypeId") Long roomTypeId);
 
     @Query("SELECT COUNT(r) FROM Review r WHERE r.roomType.id = :roomTypeId")

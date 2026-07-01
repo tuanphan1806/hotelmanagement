@@ -12,8 +12,8 @@ import java.io.Serializable;
     name = "reviews",
     uniqueConstraints = {
         @UniqueConstraint(
-            name = "uk_review_user_reservation",
-            columnNames = {"user_id", "reservation_id"}
+            name = "uk_review_user_reservation_room_type",
+            columnNames = {"user_id", "reservation_id", "room_type_id"}
         )
     },
     indexes = {

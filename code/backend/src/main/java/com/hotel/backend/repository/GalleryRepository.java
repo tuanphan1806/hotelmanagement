@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GalleryRepository extends JpaRepository<Gallery, Long> {
@@ -23,6 +24,8 @@ public interface GalleryRepository extends JpaRepository<Gallery, Long> {
      * Kiểm tra URL ảnh đã tồn tại chưa.
      */
     boolean existsByImageUrl(String imageUrl);
+
+    Optional<Gallery> findByImageUrl(String imageUrl);
 
     /**
      * Kiểm tra URL ảnh đã tồn tại ở bản ghi khác.
