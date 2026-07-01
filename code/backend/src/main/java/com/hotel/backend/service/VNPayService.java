@@ -23,7 +23,7 @@ public class VNPayService {
 
     private final VNPayConfig vnPayConfig;
     private final PaymentTransactionRepository transactionRepository;
-
+    private final ReservationService reservationService;
     // ==================== TẠO URL THANH TOÁN ====================
 
     /**
@@ -34,7 +34,7 @@ public class VNPayService {
         long amount = transaction.getAmount();
         String orderInfo = transaction.getOrderInfo() != null
                 ? transaction.getOrderInfo()
-                : "Thanh toan dat phong " + transaction.getBookingId();
+                : "Thanh toan dat phong " + transaction.getReservation().getId();
 
         // Thời gian tạo và hết hạn giao dịch (15 phút)
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -105,6 +105,7 @@ public class VNPayService {
             transaction.setPaidAt(LocalDateTime.now());
             transaction.setMessage("Thanh toán thành công");
             log.info("Thanh toán VNPay thành công: txnRef={}", txnRef);
+            reservationService.convertHoldsAfterPayment(transaction.getReservation().getId());
         } else {
             transaction.setStatus(PaymentStatus.FAILED);
             transaction.setMessage(getVNPayMessage(responseCode));
@@ -174,6 +175,8 @@ public class VNPayService {
             transaction.setStatus(PaymentStatus.SUCCESS);
             transaction.setPaidAt(LocalDateTime.now());
             transaction.setMessage("Thanh toán thành công");
+
+            reservationService.convertHoldsAfterPayment(transaction.getReservation().getId());
         } else {
             transaction.setStatus(PaymentStatus.FAILED);
             transaction.setMessage(getVNPayMessage(responseCode));

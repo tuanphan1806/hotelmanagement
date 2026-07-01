@@ -23,9 +23,9 @@ public class PaymentTransaction {
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
-    // Mã đặt phòng trong hệ thống khách sạn
-    @Column(name = "booking_id", nullable = false)
-    private String bookingId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "reservation_id", nullable = false)
+    private Reservation reservation;
 
     // Mã giao dịch nội bộ (gửi sang cổng thanh toán)
     @Column(name = "txn_ref", unique = true, nullable = false)

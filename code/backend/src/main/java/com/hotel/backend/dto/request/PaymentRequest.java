@@ -12,7 +12,7 @@ import com.hotel.backend.constant.PaymentProvider;
 public class PaymentRequest {
  
     @NotBlank(message = "bookingId không được để trống")
-    private String bookingId;
+    private Long bookingId;
  
     @NotNull(message = "amount không được để trống")
     @Min(value = 10000, message = "Số tiền tối thiểu là 10,000 VND")

@@ -1,7 +1,8 @@
 package com.hotel.backend.config;
 
-import com.hotel.backend.constant.Role;
+
 import com.hotel.backend.constant.UserStatus;
+import com.hotel.backend.constant.UserType;
 import com.hotel.backend.entity.Facility;
 import com.hotel.backend.entity.RoomType;
 import com.hotel.backend.entity.User;
@@ -42,17 +43,17 @@ public class DataSeeder implements CommandLineRunner {
         seedRoomType("TWIN ROOM", "Twin room equipped with two premium single beds", new BigDecimal("155.00"), "https://images.unsplash.com/photo-1595526014635-a5dc1dd4b08f?w=1000&h=600&fit=crop", Set.of(pool, spa, laundry));
 
         // Seed Default Users
-        seedUser("Admin Luxury", "admin", "admin@luxuryhotels.com", "admin123", "0987654321", Role.ADMIN);
-        seedUser("Demo Customer", "customer", "customer@luxuryhotels.com", "customer123", "0123456789", Role.CUSTOMER);
+        seedUser("Admin Luxury", "admin", "admin@luxuryhotels.com", "admin123", "0987654321", UserType.ADMIN);
+        seedUser("Demo Customer", "customer", "customer@luxuryhotels.com", "customer123", "0123456789", UserType.CUSTOMER);
     }
 
-    private Facility seedFacility(String name, String type, String desc, String iconUrl) {
+    private Facility seedFacility(String name, String type, String desc, String Url) {
         if (!facilityRepository.existsByFacilityNameIgnoreCase(name)) {
             Facility facility = Facility.builder()
                     .facilityName(name)
                     .type(type)
                     .description(desc)
-                    .icon(iconUrl)
+                    .imageUrl(Url)
                     .build();
             return facilityRepository.save(facility);
         }
@@ -76,7 +77,7 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
-    private void seedUser(String fullName, String username, String email, String password, String phone, Role role) {
+    private void seedUser(String fullName, String username, String email, String password, String phone, UserType role) {
         // Let's check if user with same username or email exists. We can fetch all and check or use simple query.
         boolean exists = userRepository.findAll().stream().anyMatch(u -> u.getUsername().equalsIgnoreCase(username) || u.getEmail().equalsIgnoreCase(email));
         if (!exists) {
@@ -86,7 +87,7 @@ public class DataSeeder implements CommandLineRunner {
                     .email(email)
                     .password(passwordEncoder.encode(password))
                     .phone(phone)
-                    .role(role)
+                    .type(role)
                     .status(UserStatus.ACTIVE)
                     .build();
             userRepository.save(user);

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class PaymentResponse {
     private String transactionId;   // ID giao dịch nội bộ
-    private String bookingId;
+    private Long bookingId;
     private PaymentProvider provider;
     private PaymentStatus status;
     private Long amount;

@@ -8,6 +8,7 @@ import com.hotel.backend.dto.response.ApiResponse;
 import com.hotel.backend.dto.response.AvailabilityResponse;
 import com.hotel.backend.dto.response.ReservationResponse;
 import com.hotel.backend.dto.response.ReservationRoomResponse;
+import com.hotel.backend.entity.User;
 import com.hotel.backend.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,15 @@ public ApiResponse<List<AvailabilityResponse>> checkAvailability(
         return ApiResponse.success("Đặt phòng thành công",
                 reservationService.createReservation(currentUser.getId(), request));
     }
+    // ── Staff: khách vãng lai đến trực tiếp, tạo + confirm luôn ─────────────────
+    @PostMapping("/walk-in")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<ReservationResponse> createWalkInReservation(
+            @Valid @RequestBody CreateReservationRequest request,
+            @RequestParam Long customerId) {
+        return ApiResponse.success("Tạo đặt phòng vãng lai thành công",
+                reservationService.createWalkInReservation(customerId, request));
+    }
 
     // ── Customer: xem đặt phòng của mình ─────────────────────────────────────
     @GetMapping("/my")
@@ -76,9 +86,10 @@ public ApiResponse<List<AvailabilityResponse>> checkAvailability(
     // ── Staff: xác nhận đặt phòng ────────────────────────────────────────────
     @PatchMapping("/confirm/{id}")
     // @PreAuthorize("hasAuthority('reservation:confirm')")
-    public ApiResponse<ReservationResponse> confirmReservation(@PathVariable Long id) {
+    public ApiResponse<ReservationResponse> confirmReservation(@PathVariable Long id,@AuthenticationPrincipal com.hotel.backend.entity.User currentUser) {
+        boolean isStaffOrAdmin = List.of("ADMIN", "STAFF").contains(currentUser.getType().name());
         return ApiResponse.success("Xác nhận đặt phòng thành công",
-                reservationService.confirmReservation(id));
+                reservationService.confirmReservation(id, isStaffOrAdmin));
     }
 
     // ── Staff: gán phòng cụ thể ───────────────────────────────────────────────

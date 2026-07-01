@@ -4,9 +4,12 @@ import com.hotel.backend.dto.request.RefundRequest;
 import com.hotel.backend.dto.response.PaymentResponse;
 
 import com.hotel.backend.entity.PaymentTransaction;
-import com.hotel.backend.constant.PaymentProvider;
+import com.hotel.backend.entity.Reservation;
+import com.hotel.backend.exception.AppException;
+import com.hotel.backend.exception.ErrorCode;
 import com.hotel.backend.constant.PaymentStatus;
 import com.hotel.backend.repository.PaymentTransactionRepository;
+import com.hotel.backend.repository.ReservationRepository;
 import com.hotel.backend.util.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -23,20 +26,22 @@ public class PaymentService {
 
     private final VNPayService vnPayService;
     private final PaymentTransactionRepository transactionRepository;
-
+    private final ReservationRepository reservationRepository;
     // ==================== TẠO GIAO DỊCH MỚI ====================
 
     @Transactional
     public PaymentResponse createPayment(PaymentRequest request, HttpServletRequest httpRequest) {
         String ipAddress = VNPayUtil.getClientIp(httpRequest);
-        String txnRef = VNPayUtil.generateTxnRef(request.getBookingId());
+        String txnRef = VNPayUtil.generateTxnRef(String.valueOf(request.getBookingId()));
+        Reservation reservation = reservationRepository.findById(request.getBookingId())
+                .orElseThrow(() -> new AppException(ErrorCode.RESERVATION_NOT_FOUND));
         String orderInfo = request.getOrderInfo() != null
                 ? request.getOrderInfo()
                 : "Thanh toan dat phong " + request.getBookingId();
 
         // Lưu giao dịch PENDING vào DB trước
         PaymentTransaction transaction = PaymentTransaction.builder()
-                .bookingId(request.getBookingId())
+                .reservation(reservation)
                 .txnRef(txnRef)
                 .provider(request.getProvider())
                 .status(PaymentStatus.PENDING)
@@ -60,7 +65,7 @@ public class PaymentService {
 
         return PaymentResponse.builder()
                 .transactionId(transaction.getId())
-                .bookingId(transaction.getBookingId())
+                .bookingId(transaction.getReservation().getId())
                 .provider(transaction.getProvider())
                 .status(transaction.getStatus())
                 .amount(transaction.getAmount())
@@ -77,14 +82,13 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch: " + transactionId));
     }
 
-    public List<PaymentTransaction> getTransactionsByBooking(String bookingId) {
-        return transactionRepository.findByBookingId(bookingId);
+    public List<PaymentTransaction> getTransactionsByReservation(Long reservationId) {
+        return transactionRepository.findByReservationId(reservationId);
     }
-
-    public List<PaymentTransaction> getSuccessfulTransactions(String bookingId) {
-        return transactionRepository.findByBookingIdAndStatus(bookingId, PaymentStatus.SUCCESS);
+ 
+    public List<PaymentTransaction> getSuccessfulTransactions(Long reservationId) {
+        return transactionRepository.findByReservationIdAndStatus(reservationId, PaymentStatus.SUCCESS);
     }
-
     // ==================== HOÀN TIỀN ====================
 
     @Transactional
@@ -116,7 +120,7 @@ public class PaymentService {
 
         return PaymentResponse.builder()
                 .transactionId(transaction.getId())
-                .bookingId(transaction.getBookingId())
+                .bookingId(transaction.getReservation().getId())
                 .provider(transaction.getProvider())
                 .status(transaction.getStatus())
                 .amount(request.getAmount())

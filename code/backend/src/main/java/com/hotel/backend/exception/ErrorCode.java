@@ -39,6 +39,8 @@ public enum ErrorCode {
     RESERVATION_CANNOT_CHECKIN(5007, "Chỉ có thể check-in khi đặt phòng đã CONFIRMED", HttpStatus.BAD_REQUEST),
     RESERVATION_CANNOT_CHECKOUT(5008, "Chỉ có thể check-out khi đang CHECKED_IN", HttpStatus.BAD_REQUEST),
 
+
+    RESERVATION_PAYMENT_REQUIRED(5010, "Khách hàng chưa thanh toán, không thể trả phòng", HttpStatus.PAYMENT_REQUIRED),
     // ── Review ───────────────────────────────────────────────
     REVIEW_NOT_FOUND(5050, "Không tìm thấy đánh giá", HttpStatus.NOT_FOUND),
     REVIEW_NOT_OWNER(5051, "Bạn không có quyền với đánh giá này", HttpStatus.FORBIDDEN),

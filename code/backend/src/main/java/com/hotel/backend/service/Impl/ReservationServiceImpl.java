@@ -3,6 +3,7 @@ package com.hotel.backend.service.Impl;
 import com.hotel.backend.constant.AssignStatus;
 import com.hotel.backend.constant.CleaningStatus;
 import com.hotel.backend.constant.HoldStatus;
+import com.hotel.backend.constant.PaymentStatus;
 import com.hotel.backend.constant.ReservationStatus;
 import com.hotel.backend.constant.RoomStatus;
 import com.hotel.backend.dto.request.AssignRoomRequest;
@@ -44,6 +45,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final UserRepository                 userRepository;
     private final RoomRepository                 roomRepository;
     private final GuestRepository                guestRepository;
+    private final PaymentTransactionRepository   paymentTransactionRepository;
     // ─────────────────────────────────────────────────────────────────────────
     // Tạo đặt phòng
     // ─────────────────────────────────────────────────────────────────────────
@@ -116,7 +118,7 @@ public class ReservationServiceImpl implements ReservationService {
                     .status(HoldStatus.ACTIVE)
                     .build();
             roomHoldRepository.save(hold);
-            //dat coc de khong bi huy
+            //dat tien de khong bi huy
             // ReservationRoom placeholder (1 row per unit, room chưa assign)
             for (int i = 0; i < item.quantity(); i++) {
                 ReservationRoom rr = ReservationRoom.builder()
@@ -132,6 +134,104 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         log.info("Reservation created: code={} total={}", reservation.getReservationCode(), totalAmount);
+        return ReservationResponse.fromWithDetails(reservation, roomTypeResponses);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void convertHoldsAfterPayment(Long reservationId) {
+        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if (reservation.getStatus() != ReservationStatus.DRAFT) {
+            log.info("Reservation {} không còn DRAFT, bỏ qua convert hold", reservationId);
+            return;
+        }
+
+        reservation.getRoomTypes().forEach(rrt -> {
+            RoomHold hold = rrt.getRoomHold();
+            if (hold != null && hold.getStatus() == HoldStatus.ACTIVE) {
+                hold.setStatus(HoldStatus.CONVERTED);
+                roomHoldRepository.save(hold);
+                log.info("RoomHold {} chuyển sang CONVERTED sau khi thanh toán thành công", hold.getId());
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Tạo đặt phòng vãng lai (staff tạo hộ, check-in trực tiếp — bỏ qua DRAFT/Hold/Payment)
+    // ─────────────────────────────────────────────────────────────────────────
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ReservationResponse createWalkInReservation(Long customerId, CreateReservationRequest request) {
+        log.info("createWalkInReservation: customerId={} checkIn={} checkOut={}",
+                customerId, request.getCheckIn(), request.getCheckOut());
+
+        validateDates(request.getCheckIn(), request.getCheckOut());
+
+        User customer = userRepository.findById(customerId)
+                .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_FOUND));
+
+        long hours = ChronoUnit.HOURS.between(request.getCheckIn(), request.getCheckOut());
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        List<RoomTypeWithPrice> roomTypeWithPrices = new ArrayList<>();
+
+        for (RoomTypeItemRequest item : request.getRoomTypes()) {
+            RoomType roomType = roomTypeRepository.findById(item.getRoomTypeId())
+                    .orElseThrow(() -> new AppException(ErrorCode.ROOM_TYPE_NOT_FOUND));
+
+            checkAvailabilityOrThrow(roomType, item.getQuantity(),
+                    request.getCheckIn(), request.getCheckOut(), null);
+
+            BigDecimal subtotal = roomType.getPrice()
+                    .multiply(BigDecimal.valueOf(item.getQuantity()))
+                    .multiply(BigDecimal.valueOf(hours));
+
+            totalAmount = totalAmount.add(subtotal);
+            roomTypeWithPrices.add(new RoomTypeWithPrice(roomType, item.getQuantity(),
+                    roomType.getPrice(), subtotal));
+        }
+
+        // Tạo Reservation — đi thẳng CONFIRMED, không qua DRAFT/Hold/Payment
+        Reservation reservation = Reservation.builder()
+                .reservationCode(generateCode())
+                .customer(customer)
+                .checkIn(request.getCheckIn())
+                .checkOut(request.getCheckOut())
+                .totalAmount(totalAmount)
+                .guestCount(request.getGuestCount())
+                .note(request.getNote())
+                .status(ReservationStatus.CONFIRMED)
+                .build();
+        reservationRepository.save(reservation);
+
+        // Tạo ReservationRoomType + ReservationRoom (placeholder) — KHÔNG tạo RoomHold
+        List<ReservationRoomTypeResponse> roomTypeResponses = new ArrayList<>();
+
+        for (RoomTypeWithPrice item : roomTypeWithPrices) {
+            ReservationRoomType rrt = ReservationRoomType.builder()
+                    .reservation(reservation)
+                    .roomType(item.roomType())
+                    .quantity(item.quantity())
+                    .roomPrice(item.price())
+                    .subtotal(item.subtotal())
+                    .build();
+            reservationRoomTypeRepository.save(rrt);
+
+            for (int i = 0; i < item.quantity(); i++) {
+                ReservationRoom rr = ReservationRoom.builder()
+                        .reservationRoomType(rrt)
+                        .status(AssignStatus.PENDING_ASSIGN)
+                        .build();
+                reservationRoomRepository.save(rr);
+            }
+
+            roomTypeResponses.add(ReservationRoomTypeResponse.from(rrt));
+        }
+
+        log.info("Walk-in reservation created & confirmed: code={} total={}",
+                reservation.getReservationCode(), totalAmount);
         return ReservationResponse.fromWithDetails(reservation, roomTypeResponses);
     }
 
@@ -210,7 +310,7 @@ public List<ReservationResponse> getReservationsByCustomer(Long customerId) {
     // ─────────────────────────────────────────────────────────────────────────
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ReservationResponse confirmReservation(Long reservationId) {
+    public ReservationResponse confirmReservation(Long reservationId,boolean isStaffOrAdmin) {
         Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
         .orElseThrow(() -> new AppException(ErrorCode.RESERVATION_NOT_FOUND));
 
@@ -218,18 +318,34 @@ public List<ReservationResponse> getReservationsByCustomer(Long customerId) {
             throw new AppException(ErrorCode.RESERVATION_CANNOT_CONFIRM);
         }
 
+        // Chỉ bắt buộc thanh toán cọc nếu KHÔNG phải staff/admin tạo hộ
+        if (!isStaffOrAdmin) {
+            boolean isPaid = paymentTransactionRepository.existsByReservationIdAndStatus(
+                    reservationId, PaymentStatus.SUCCESS);
+            if (!isPaid) {
+                throw new AppException(ErrorCode.RESERVATION_PAYMENT_REQUIRED);
+            }
+        }
+
         // Kiểm tra hold chưa expired
+        // Kiểm tra hold — chấp nhận cả ACTIVE (chưa qua convertHoldsAfterPayment)
+        // và CONVERTED (đã qua convertHoldsAfterPayment từ IPN)
         reservation.getRoomTypes().forEach(rrt -> {
             RoomHold hold = rrt.getRoomHold();
-            if (hold == null || hold.getStatus() != HoldStatus.ACTIVE) {
+            if (hold == null) {
                 throw new AppException(ErrorCode.ROOM_HOLD_EXPIRED);
             }
-            if (hold.getExpiresAt().isBefore(LocalDateTime.now())) {
+            if (hold.getStatus() == HoldStatus.ACTIVE) {
+                if (hold.getExpiresAt().isBefore(LocalDateTime.now())) {
+                    throw new AppException(ErrorCode.ROOM_HOLD_EXPIRED);
+                }
+                hold.setStatus(HoldStatus.CONVERTED);
+                roomHoldRepository.save(hold);
+            } else if (hold.getStatus() != HoldStatus.CONVERTED) {
+                // EXPIRED hoặc RELEASED → không hợp lệ
                 throw new AppException(ErrorCode.ROOM_HOLD_EXPIRED);
             }
-            // Convert hold sang CONVERTED
-            hold.setStatus(HoldStatus.CONVERTED);
-            roomHoldRepository.save(hold);
+            // Nếu đã CONVERTED rồi (do IPN xử lý trước) → bỏ qua, không làm gì thêm
         });
 
         reservation.setStatus(ReservationStatus.CONFIRMED);
@@ -405,6 +521,12 @@ public List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, Local
 
         if (reservation.getStatus() != ReservationStatus.CHECKED_IN) {
             throw new AppException(ErrorCode.RESERVATION_CANNOT_CHECKOUT);
+        }
+        // Bắt buộc đã thanh toán thành công mới cho checkout
+        boolean isPaid = paymentTransactionRepository.existsByReservationIdAndStatus(
+                reservationId, PaymentStatus.SUCCESS);
+        if (!isPaid) {
+            throw new AppException(ErrorCode.RESERVATION_PAYMENT_REQUIRED);
         }
 
         // Giải phóng phòng → CHECKED_OUT

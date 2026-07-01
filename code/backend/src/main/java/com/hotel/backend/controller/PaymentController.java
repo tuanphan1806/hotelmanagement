@@ -61,7 +61,7 @@ public class PaymentController {
         try {
             PaymentTransaction transaction = vnPayService.handleReturn(params);
             String status = transaction.getStatus().name().toLowerCase();
-            String bookingId = transaction.getBookingId();
+            String bookingId = String.valueOf(transaction.getReservation().getId());
 
             // Redirect về trang kết quả NextJS
             String redirectUrl = String.format(
@@ -105,9 +105,9 @@ public class PaymentController {
      * GET /api/payments/booking/{bookingId}
      * Lấy tất cả giao dịch của một booking
      */
-    @GetMapping("/booking/{bookingId}")
-    public ResponseEntity<List<PaymentTransaction>> getByBooking(@PathVariable String bookingId) {
-        return ResponseEntity.ok(paymentService.getTransactionsByBooking(bookingId));
+    @GetMapping("/booking/{reservationId}")
+    public ResponseEntity<List<PaymentTransaction>> getByBooking(@PathVariable Long reservationId) {
+        return ResponseEntity.ok(paymentService.getTransactionsByReservation(reservationId));
     }
 
     // ==================== HOÀN TIỀN ====================

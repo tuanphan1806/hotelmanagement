@@ -16,7 +16,11 @@ public interface ReservationService {
  
     // Khách tạo đặt phòng → tạo Reservation + ReservationRoomType + RoomHold
     ReservationResponse createReservation(Long customerId, CreateReservationRequest request);
- 
+
+    ReservationResponse createWalkInReservation(Long customerId, CreateReservationRequest request);
+
+    // Được gọi từ Payment/VNPay khi thanh toán thành công
+    void convertHoldsAfterPayment(Long reservationId);
     // Lấy chi tiết đặt phòng
     ReservationResponse getReservation(Long reservationId);
  
@@ -27,7 +31,7 @@ public interface ReservationService {
     ReservationResponse cancelReservation(Long reservationId, CancelReservationRequest request);
  
     // Staff xác nhận đặt phòng (sau thanh toán hoặc duyệt thủ công)
-    ReservationResponse confirmReservation(Long reservationId);
+    ReservationResponse confirmReservation(Long reservationId,boolean isStaffOrAdmin);
  
     // Kiểm tra phòng trống theo ngày
     List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, LocalDateTime checkOut);
