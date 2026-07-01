@@ -19,23 +19,23 @@ interface BookingData {
 
 // Fallback details for pricing calculations based on room keys
 const ROOM_DATABASE: Record<string, { typeName: string; size: string; price: number; image: string }> = {
-  "premium-deluxe-suite": {
-    typeName: "Premium Deluxe Suite",
+  "single-room": {
+    typeName: "Single Room",
     size: "45 m²",
     price: 2100000,
-    image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=300&h=200&fit=crop"
+    image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=300&h=200&fit=crop"
   },
-  "premium-executive-suite": {
-    typeName: "Premium Executive Suite",
+  "double-room": {
+    typeName: "Double Room",
     size: "65 m²",
     price: 2900000,
     image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=300&h=200&fit=crop"
   },
-  "junior-suite": {
-    typeName: "Junior Suite",
-    size: "38 m²",
+  "twin-room": {
+    typeName: "Twin Room",
+    size: "40 m²",
     price: 1850000,
-    image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=300&h=200&fit=crop"
+    image: "https://images.unsplash.com/photo-1739590269025-07766e4ab657?w=300&h=300&fit=crop"
   }
 };
 
@@ -490,7 +490,7 @@ function BookingFormContent() {
 
           {/* Right Column - Booking Summary */}
           <div className="bg-white border border-gray-200 p-6 rounded-sm shadow-md sticky top-28 space-y-6">
-            <h3 className="font-serif text-lg font-bold text-primary-navy pb-3 border-b border-gray-100">
+            <h3 className="font-sans text-lg font-bold text-primary-navy pb-3 border-b border-gray-100">
               Tóm tắt đặt phòng
             </h3>
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api";
 
+
 interface RoomDetails {
   id?: number;
   typeName: string;
@@ -22,20 +23,23 @@ interface RoomDetails {
 
 // Fallback data matching the screenshot and other categories
 const DEFAULT_ROOM_DETAILS: Record<string, RoomDetails> = {
-  "premium-deluxe-suite": {
-    typeName: "Premium Deluxe Suite",
-    description: "Trải nghiệm kỳ nghỉ dưỡng hoàn hảo trong không gian phòng Premium Deluxe Suite rộng rãi, tinh tế. Phòng được trang bị đầy đủ các tiện nghi cao cấp hiện đại cùng ban công ngắm cảnh tuyệt đẹp, mang lại cho bạn những phút giây thư giãn tuyệt đối sau một ngày dài khám phá.",
+  "single-room": {
+    typeName: "Single Room",
+    description: "Trải nghiệm kỳ nghỉ dưỡng hoàn hảo trong không gian rộng rãi, tinh tế. Phòng được trang bị đầy đủ các tiện nghi cao cấp hiện đại cùng ban công ngắm cảnh tuyệt đẹp, mang lại cho bạn những phút giây thư giãn tuyệt đối sau một ngày dài khám phá.",
     price: 210,
-    imageUrl: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1600&h=900&fit=crop",
+    imageUrl: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1600&h=900&fit=crop",
     specs: {
-      bed: "1 Giường đôi lớn",
-      size: "45 m²",
+      bed: "1 Giường đơn lớn",
+      size: "40 m²",
       view: "Hướng hồ"
     },
     gallery: [
       "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&h=400&fit=crop", // bathroom
       "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&h=400&fit=crop", // desk / coffee
-      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&h=400&fit=crop"  // shower
+      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&h=400&fit=crop",// shower
+      "https://images.unsplash.com/photo-1760067537740-faa11f7bdf1e?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1637029436347-e33bf98a5412?q=80&w=600&h=400&fit=crop",
+      "https://plus.unsplash.com/premium_photo-1742615135329-126469d894be?w=600&h=400&fit=crop"  
     ],
     amenities: [
       "Tivi thông minh màn hình phẳng",
@@ -48,20 +52,24 @@ const DEFAULT_ROOM_DETAILS: Record<string, RoomDetails> = {
       "Dịch vụ dọn phòng hàng ngày"
     ]
   },
-  "premium-executive-suite": {
-    typeName: "Premium Executive Suite",
-    description: "Phòng Premium Executive Suite đẳng cấp dành cho những ai tìm kiếm sự hoàn hảo. Không gian rộng lớn với phòng khách riêng biệt, nội thất gỗ sang trọng và tầm nhìn toàn cảnh ngoạn mục.",
+  "double-room": {
+    typeName: "Double Room",
+    description: "Đẳng cấp dành cho những ai tìm kiếm sự hoàn hảo. Không gian rộng lớn với phòng khách riêng biệt, nội thất gỗ sang trọng và tầm nhìn toàn cảnh ngoạn mục.",
     price: 290,
     imageUrl: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1600&h=900&fit=crop",
     specs: {
-      bed: "1 Giường King lớn",
+      bed: "1 Giường đôi lớn",
       size: "65 m²",
       view: "Hướng biển"
     },
     gallery: [
       "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&h=400&fit=crop",
       "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1760067537740-faa11f7bdf1e?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1637029436347-e33bf98a5412?q=80&w=600&h=400&fit=crop",
+      "https://plus.unsplash.com/premium_photo-1742615135329-126469d894be?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1732525819066-88074e2d2748?w=600&h=400&fit=crop"
     ],
     amenities: [
       "Tivi thông minh màn hình phẳng",
@@ -74,20 +82,24 @@ const DEFAULT_ROOM_DETAILS: Record<string, RoomDetails> = {
       "Bồn tắm Jacuzzi hiện đại"
     ]
   },
-  "junior-suite": {
-    typeName: "Junior Suite",
-    description: "Sự kết hợp hoàn hảo giữa tiện nghi và ấm cúng. Junior Suite mang đến một trải nghiệm lưu trú đáng nhớ với cách bài trí nội thất thông minh cùng ban công lộng gió.",
+  "twin-room": {
+    typeName: "Twin Room",
+    description: "Sự kết hợp hoàn hảo giữa tiện nghi và ấm cúng, mang đến một trải nghiệm lưu trú đáng nhớ với cách bài trí nội thất thông minh cùng ban công lộng gió.",
     price: 185,
-    imageUrl: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1600&h=900&fit=crop",
+    imageUrl: "https://images.unsplash.com/photo-1739590269025-07766e4ab657?w=1600&h=900&fit=crop",
     specs: {
-      bed: "1 Giường Queen lớn",
-      size: "38 m²",
+      bed: "2 Giường đơn lớn",
+      size: "40 m²",
       view: "Hướng vườn"
     },
     gallery: [
       "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&h=400&fit=crop",
       "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1760067537740-faa11f7bdf1e?w=600&h=400&fit=crop",
+      "https://plus.unsplash.com/premium_photo-1742615135329-126469d894be?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1637029436347-e33bf98a5412?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1698618369794-3d468b4e5fa1?w=627&h=400&fit=crop" 
     ],
     amenities: [
       "Tivi thông minh màn hình phẳng",
@@ -102,21 +114,6 @@ const DEFAULT_ROOM_DETAILS: Record<string, RoomDetails> = {
   }
 };
 
-const RECOMMENDATIONS = [
-  {
-    id: "premium-executive-suite",
-    title: "Premium Executive Suite",
-    desc: "Trải nghiệm hoàng gia với không gian cực rộng và bồn tắm Jacuzzi.",
-    image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&h=500&fit=crop"
-  },
-  {
-    id: "junior-suite",
-    title: "Junior Suite",
-    desc: "Ấm cúng và sang trọng, lý tưởng cho các cặp đôi tận hưởng kỳ nghỉ.",
-    image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&h=500&fit=crop"
-  }
-];
-
 export default function RoomDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const resolvedParams = use(params);
@@ -124,6 +121,21 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
 
   const [room, setRoom] = useState<RoomDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [galleryStart, setGalleryStart] = useState(0);
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const visibleImages =
+  room?.gallery.slice(galleryStart, galleryStart + 3) ?? [];
+
+  const recommendations = Object.entries(DEFAULT_ROOM_DETAILS)
+    .filter(([key]) => key !== roomId)
+    .slice(0, 2)
+    .map(([key, value]) => ({
+      id: key,
+      title: value.typeName,
+      desc: value.description.substring(0, 70) + "...",
+      image: value.imageUrl
+    }));
 
   // Booking widget states
   const [checkIn, setCheckIn] = useState("");
@@ -167,8 +179,13 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
             gallery: [
               "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&h=400&fit=crop",
               "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&h=400&fit=crop",
-              "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&h=400&fit=crop"
-            ],
+              "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&h=400&fit=crop",
+              "https://images.unsplash.com/photo-1760067537740-faa11f7bdf1e?w=600&h=400&fit=crop",
+              "https://plus.unsplash.com/premium_photo-1742615135329-126469d894be?w=600&h=400&fit=crop",
+              "https://images.unsplash.com/photo-1637029436347-e33bf98a5412?w=600&h=400&fit=crop",
+              "https://images.unsplash.com/photo-1732525819066-88074e2d2748?w=600&h=400&fit=crop",
+              "https://images.unsplash.com/photo-1698618369794-3d468b4e5fa1?w=627&h=400&fit=crop"  
+            ],  
             amenities: dbData.facilities?.map((f: any) => f.facilityName) || [
               "Tivi thông minh màn hình phẳng",
               "Mini bar với đồ uống",
@@ -209,8 +226,6 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
       </div>
     );
   }
-
-
 
   return (
     <div className="bg-white">
@@ -265,17 +280,51 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
             </div>
 
             {/* Grid of Images */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="h-[250px] overflow-hidden rounded-sm shadow-sm">
-                <img src={room.gallery[0]} alt="bathroom" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-              </div>
-              <div className="h-[250px] overflow-hidden rounded-sm shadow-sm">
-                <img src={room.gallery[1]} alt="room desk" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-              </div>
-              <div className="h-[250px] overflow-hidden rounded-sm shadow-sm">
-                <img src={room.gallery[2]} alt="bathroom details" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-              </div>
+            <div className="flex items-center gap-4">
+
+            {/* Left Arrow */}
+            <button
+                disabled={galleryStart === 0}
+                onClick={() => setGalleryStart((prev) => Math.max(prev - 1, 0))}
+                className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center
+                hover:bg-primary-navy hover:text-white transition
+                disabled: disabled:cursor-not-allowed shrink-0"
+            >
+                ←
+            </button>
+
+            {/* Gallery */}
+            <div className="grid flex-1 grid-cols-1 md:grid-cols-3 gap-4">
+                {visibleImages.map((img, index) => (
+                    <div
+                        key={index}
+                        className="h-[250px] overflow-hidden rounded-sm shadow-sm cursor-pointer"
+                        onClick={() => setSelectedImage(galleryStart + index)}
+                    >
+                        <img
+                            src={img}
+                            className="w-full h-full object-cover hover:scale-105 transition duration-500"
+                        />
+                    </div>
+                ))}
             </div>
+
+            {/* Right Arrow */}
+            <button
+                disabled={galleryStart + 3 >= room.gallery.length}
+                onClick={() =>
+                    setGalleryStart((prev) =>
+                        Math.min(prev + 1, room.gallery.length - 3)
+                    )
+                }
+                className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center
+                hover:bg-primary-navy hover:text-white transition
+                disabled: disabled:cursor-not-allowed shrink-0"
+            >
+                →
+            </button>
+
+        </div>
 
             {/* Amenities Section */}
             <div className="bg-[#EEF3FC] p-8 rounded-sm border border-gray-100/50">
@@ -385,27 +434,68 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {RECOMMENDATIONS.map((rec) => (
-              <div key={rec.id} className="bg-white border border-gray-100 rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="h-[250px] overflow-hidden">
-                  <img src={rec.image} alt={rec.title} className="w-full h-full object-cover" />
-                </div>
-                <div className="p-6 space-y-3">
-                  <h3 className="font-serif text-2xl font-bold text-primary-navy">{rec.title}</h3>
-                  <p className="text-text-light text-sm font-light leading-relaxed">{rec.desc}</p>
-                  <Link 
-                    href={`/rooms/${rec.id}`}
-                    className="inline-flex items-center gap-2 text-xs font-bold text-accent-gold hover:text-[#b38e4b] transition-colors pt-2 uppercase"
-                  >
-                    Xem chi tiết &rarr;
-                  </Link>
-                </div>
+    {/* Recommendations */}
+          <section className="bg-[#EEF3FC]/40 py-20 border-t border-gray-100">
+            <div className="max-w-6xl mx-auto px-6">
+              <h2 className="font-serif text-3xl font-bold text-primary-navy mb-12">Xem thêm các lựa chọn</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {recommendations.map((rec) => (
+                  <div key={rec.id} className="bg-white p-6 rounded-sm shadow-sm">
+                    <img src={rec.image} className="w-full h-[200px] object-cover mb-4" />
+                    <h3 className="font-serif text-2xl font-bold">{rec.title}</h3>
+                    <p className="text-sm text-text-light py-2">{rec.desc}</p>
+                    <Link href={`/rooms/${rec.id}`} className="text-accent-gold font-bold uppercase text-xs">Xem chi tiết &rarr;</Link>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          </section>
         </div>
       </section>
+
+        {selectedImage !== null && (
+      <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+          onClick={() => setSelectedImage(null)}
+      >
+          <button
+              className="absolute top-5 right-5 text-white text-4xl"
+              onClick={() => setSelectedImage(null)}
+          >
+              ✕
+          </button>
+
+          {selectedImage > 0 && (
+              <button
+                  className="absolute left-6 text-white text-5xl"
+                  onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImage(selectedImage - 1);
+                  }}
+              >
+                  ‹
+              </button>
+          )}
+
+          <img
+              src={room.gallery[selectedImage]}
+              className="max-h-[90vh] max-w-[90vw] object-contain"
+              onClick={(e) => e.stopPropagation()}
+          />
+
+          {selectedImage < room.gallery.length - 1 && (
+              <button
+                  className="absolute right-6 text-white text-5xl"
+                  onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImage(selectedImage + 1);
+                  }}
+              >
+                  ›
+              </button>
+          )}
+      </div>
+  )}
     </div>
   );
 }
