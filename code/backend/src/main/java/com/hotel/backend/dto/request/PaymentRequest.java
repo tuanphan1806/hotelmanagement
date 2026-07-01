@@ -15,7 +15,7 @@ public class PaymentRequest {
     private String bookingId;
  
     @NotNull(message = "amount không được để trống")
-    @Min(value = 1000, message = "Số tiền tối thiểu là 1,000 VND")
+    @Min(value = 10000, message = "Số tiền tối thiểu là 10,000 VND")
     private Long amount;
  
     @NotNull(message = "provider không được để trống")

@@ -37,28 +37,55 @@ public class AppConfig {
     private final CustomizeRequestFilter requestFilter;
     private final UserServiceDetail userServiceDetail;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+//     .authorizeHttpRequests(request -> request
+//     // Public endpoints
+//     .requestMatchers(HttpMethod.POST, "/api/user/add").permitAll()
+//     .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+//     .requestMatchers("/uploads/**").permitAll()
+
+//     // Admin only
+//     .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+//     // Còn lại phải đăng nhập
+//     .anyRequest().authenticated()
+// )
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(request -> request
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/room-types/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/facilities/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/galleries/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/rooms/available").permitAll()
-                .requestMatchers(HttpMethod.PATCH,"/api/reservations").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
-                .anyRequest().authenticated())
-            .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint));
-        return http.build();
-    }
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(request -> request
+       
+            .requestMatchers("/auth/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
+            .requestMatchers("/api/payments/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/room-types/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/facilities/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/galleries/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/rooms/available").permitAll()
+
+
+            .requestMatchers(HttpMethod.PATCH,"/api/reservations").permitAll()
+
+            .requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
+            .anyRequest().authenticated())
+        .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
+        .authenticationProvider(authenticationProvider())
+        .addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class)
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint(authenticationEntryPoint)
+            // .accessDeniedHandler((req, res, e) -> {
+            //     res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            //     res.setContentType("application/json");
+            //     res.setCharacterEncoding("UTF-8");
+            //     res.getWriter().write("""
+            //         {"status": 403, "error": "Forbidden", "message": "%s"}
+            //         """.formatted(e.getMessage()));
+            // })
+        );
+    return http.build();
+}
+
     @Bean
     public WebSecurityCustomizer IgnoreResources() {
         return webSecurity -> webSecurity.ignoring().requestMatchers("/actuator/**", "/v3/**", "/swagger-ui*/*swagger-initializer*", "/swagger-ui*/**","/favicon.ico");
@@ -71,7 +98,7 @@ public class AppConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE","PATCH")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .allowCredentials(false)
                         .maxAge(3600);
