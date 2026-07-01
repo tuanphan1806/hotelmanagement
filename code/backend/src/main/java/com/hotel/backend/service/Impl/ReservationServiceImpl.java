@@ -310,7 +310,7 @@ public List<ReservationResponse> getReservationsByCustomer(Long customerId) {
     // ─────────────────────────────────────────────────────────────────────────
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ReservationResponse confirmReservation(Long reservationId,boolean isStaffOrAdmin) {
+    public ReservationResponse confirmReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
         .orElseThrow(() -> new AppException(ErrorCode.RESERVATION_NOT_FOUND));
 
@@ -319,13 +319,13 @@ public List<ReservationResponse> getReservationsByCustomer(Long customerId) {
         }
 
         // Chỉ bắt buộc thanh toán cọc nếu KHÔNG phải staff/admin tạo hộ
-        if (!isStaffOrAdmin) {
-            boolean isPaid = paymentTransactionRepository.existsByReservationIdAndStatus(
-                    reservationId, PaymentStatus.SUCCESS);
-            if (!isPaid) {
-                throw new AppException(ErrorCode.RESERVATION_PAYMENT_REQUIRED);
-            }
+
+        boolean isPaid = paymentTransactionRepository.existsByReservationIdAndStatus(
+                reservationId, PaymentStatus.SUCCESS);
+        if (!isPaid) {
+            throw new AppException(ErrorCode.RESERVATION_PAYMENT_REQUIRED);
         }
+        
 
         // Kiểm tra hold chưa expired
         // Kiểm tra hold — chấp nhận cả ACTIVE (chưa qua convertHoldsAfterPayment)

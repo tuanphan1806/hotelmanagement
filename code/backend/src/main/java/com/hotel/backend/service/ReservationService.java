@@ -31,7 +31,7 @@ public interface ReservationService {
     ReservationResponse cancelReservation(Long reservationId, CancelReservationRequest request);
  
     // Staff xác nhận đặt phòng (sau thanh toán hoặc duyệt thủ công)
-    ReservationResponse confirmReservation(Long reservationId,boolean isStaffOrAdmin);
+    ReservationResponse confirmReservation(Long reservationId);
  
     // Kiểm tra phòng trống theo ngày
     List<AvailabilityResponse> checkAvailability(LocalDateTime checkIn, LocalDateTime checkOut);

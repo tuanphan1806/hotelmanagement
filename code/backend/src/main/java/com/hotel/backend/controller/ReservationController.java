@@ -88,8 +88,11 @@ public ApiResponse<List<AvailabilityResponse>> checkAvailability(
     // @PreAuthorize("hasAuthority('reservation:confirm')")
     public ApiResponse<ReservationResponse> confirmReservation(@PathVariable Long id,@AuthenticationPrincipal com.hotel.backend.entity.User currentUser) {
         boolean isStaffOrAdmin = List.of("ADMIN", "STAFF").contains(currentUser.getType().name());
+        if (!isStaffOrAdmin) {
+            return ApiResponse.error(HttpStatus.METHOD_NOT_ALLOWED, "Chỉ Staff/Admin mới được xác nhận đặt phòng");
+        }
         return ApiResponse.success("Xác nhận đặt phòng thành công",
-                reservationService.confirmReservation(id, isStaffOrAdmin));
+                reservationService.confirmReservation(id));
     }
 
     // ── Staff: gán phòng cụ thể ───────────────────────────────────────────────

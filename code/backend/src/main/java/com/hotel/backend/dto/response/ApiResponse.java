@@ -6,6 +6,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import org.bouncycastle.jcajce.provider.asymmetric.dsa.DSASigner.stdDSA;
+import org.springframework.http.HttpStatus;
+
 /**
  * Envelope chuẩn cho mọi API response.
  *
@@ -67,6 +70,13 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .success(false)
                 .message(message)
+                .build();
+    }
+
+    public static <T> ApiResponse<T> error(HttpStatus status, String message) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .message("Error " + status.value() + ": " + message)
                 .build();
     }
 }
